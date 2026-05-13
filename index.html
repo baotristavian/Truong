@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hệ Thống Tính Lương</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border2:#3d444d;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --blue:#388bfd;--blue-bg:#1c2d3e;--blue-dim:#0d1b2a;
+  --green:#3fb950;--green-bg:#1b2d22;
+  --red:#f85149;--red-bg:#2d1b1e;
+  --amber:#d29922;--amber-bg:#2d2212;
+  --purple:#bc8cff;--purple-bg:#231b2e;
+  --cyan:#39d0d8;--cyan-bg:#0d2530;
+  --accent:#58a6ff;--glow:rgba(88,166,255,0.15);
+  /* employee accent colors */
+  --e0:#58a6ff; --e0-bg:#0d1b2a; --e0-border:#1c3d5e;
+  --e1:#bc8cff; --e1-bg:#1a1230; --e1-border:#3a2060;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px;}
+
+/* ─── TOP NAV ─────────────────────────────────────────────────── */
+.top-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#1a0e30,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px rgba(124,58,237,0.4);}
+.brand-name{font-size:21px;font-weight:800;letter-spacing:-.5px;}
+.brand-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.nav-actions{display:flex;gap:8px;}
+
+/* ─── MODE SWITCHER ──────────────────────────────────────────── */
+.mode-bar{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:12px;border:1px solid var(--border);margin-bottom:24px;}
+.mode-btn{flex:1;padding:10px 18px;border-radius:9px;border:none;background:transparent;color:var(--text2);font-family:'Lexend',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.mode-btn.active{color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.mode-btn.m0.active{background:linear-gradient(135deg,#1c3a6e,#388bfd);}
+.mode-btn.m1.active{background:linear-gradient(135deg,#2a1060,#9b59f8);}
+.mode-btn.m2.active{background:linear-gradient(135deg,#1a2e1a,#3fb950);}
+.mode-btn:hover:not(.active){color:var(--text);background:var(--bg3);}
+
+/* ─── EMPLOYEE SWITCHER (inside employee modes) ─────────────── */
+.emp-switcher{display:flex;gap:8px;margin-bottom:20px;}
+.emp-btn{padding:8px 20px;border-radius:8px;border:1px solid;font-family:'Lexend',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.emp-btn.e0{border-color:var(--e0-border);color:var(--text2);background:transparent;}
+.emp-btn.e0.active{background:var(--e0-bg);color:var(--e0);box-shadow:0 0 12px rgba(88,166,255,.2);}
+.emp-btn.e1{border-color:var(--e1-border);color:var(--text2);background:transparent;}
+.emp-btn.e1.active{background:var(--e1-bg);color:var(--e1);box-shadow:0 0 12px rgba(188,140,255,.2);}
+
+/* ─── BUTTONS ────────────────────────────────────────────────── */
+.btn{padding:9px 20px;border-radius:8px;font-family:'Lexend',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,#1c4a8a,#388bfd);border-color:#388bfd;color:#fff;box-shadow:0 0 12px rgba(56,139,253,.3);}
+.btn-primary:hover{box-shadow:0 0 20px rgba(56,139,253,.5);transform:translateY(-1px);}
+.btn-danger{background:transparent;border-color:var(--red);color:var(--red);}
+.btn-danger:hover{background:var(--red-bg);}
+.btn-ghost{background:transparent;border-color:var(--border2);color:var(--text2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-success{background:linear-gradient(135deg,#1b3d22,#3fb950);border-color:#3fb950;color:#fff;}
+
+/* ─── INNER TABS ─────────────────────────────────────────────── */
+.inner-tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:10px;border:1px solid var(--border);margin-bottom:22px;}
+.itab{flex:1;padding:8px 14px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-family:'Lexend',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.itab.active{background:var(--bg3);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.itab:hover:not(.active){color:var(--text);}
+
+/* ─── PANELS ─────────────────────────────────────────────────── */
+.view{display:none;animation:fi .25s ease;}
+.view.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.ipanel{display:none;}
+.ipanel.active{display:block;animation:fi .2s ease;}
+
+/* ─── SECTION TITLE ──────────────────────────────────────────── */
+.stitle{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:22px 0 13px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.stitle::before{content:'';width:3px;height:14px;border-radius:2px;}
+.stitle.e0::before{background:var(--e0);}
+.stitle.e1::before{background:var(--e1);}
+.stitle.cmp::before{background:var(--green);}
+
+/* ─── FORM ───────────────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11px;color:var(--text2);}
+.field input{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;transition:all .2s;width:100%;}
+.field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--glow);}
+.field input[type=number]{text-align:right;}
+.field-hint{font-size:10px;color:var(--text3);}
+
+/* ─── HERO ───────────────────────────────────────────────────── */
+.hero{border-radius:16px;padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden;}
+.hero.e0{background:linear-gradient(135deg,#0a1525 0%,#0d1b2a 50%,#0d1117 100%);border:1px solid #1c4a8a;}
+.hero.e1{background:linear-gradient(135deg,#140a28 0%,#1a1030 50%,#0d1117 100%);border:1px solid #3a2060;}
+.hero::before{content:'';position:absolute;top:-50%;right:-20px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);}
+.hero-lbl{font-size:12px;font-weight:500;margin-bottom:6px;}
+.hero.e0 .hero-lbl{color:var(--e0);}
+.hero.e1 .hero-lbl{color:var(--e1);}
+.hero-val{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:700;letter-spacing:-1px;}
+.hero.e0 .hero-val{color:var(--accent);}
+.hero.e1 .hero-val{color:var(--purple);}
+.hero-sub{font-size:12px;color:var(--text2);margin-top:5px;}
+
+/* ─── METRIC CARDS ───────────────────────────────────────────── */
+.mg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.mg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px 17px;transition:all .2s;}
+.mc:hover{border-color:var(--border2);transform:translateY(-1px);}
+.mc.blue{background:var(--blue-dim);border-color:#1c3d5e;}
+.mc.green{background:var(--green-bg);border-color:#1e3d26;}
+.mc.red{background:var(--red-bg);border-color:#3d1e22;}
+.mc.amber{background:var(--amber-bg);border-color:#3d2e16;}
+.mc.purple{background:var(--purple-bg);border-color:#3d2d5e;}
+.mc.cyan{background:var(--cyan-bg);border-color:#0e3040;}
+.mc-lbl{font-size:11px;color:var(--text2);margin-bottom:7px;}
+.mc-val{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;color:var(--text);}
+.mc.blue .mc-val{color:var(--accent);}
+.mc.green .mc-val{color:var(--green);}
+.mc.red .mc-val{color:var(--red);}
+.mc.amber .mc-val{color:var(--amber);}
+.mc.purple .mc-val{color:var(--purple);}
+.mc.cyan .mc-val{color:var(--cyan);}
+
+/* ─── BADGE ──────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.bd-blue{background:var(--blue-bg);color:var(--blue);border:1px solid #1c3d5e;}
+.bd-green{background:var(--green-bg);color:var(--green);border:1px solid #1e3d26;}
+.bd-red{background:var(--red-bg);color:var(--red);border:1px solid #3d1e22;}
+.bd-amber{background:var(--amber-bg);color:var(--amber);border:1px solid #3d2e16;}
+.bd-purple{background:var(--purple-bg);color:var(--purple);border:1px solid #3d2d5e;}
+.bd-cyan{background:var(--cyan-bg);color:var(--cyan);border:1px solid #0e3040;}
+
+/* ─── BAR ────────────────────────────────────────────────────── */
+.bar-row{margin-bottom:14px;}
+.bar-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:13px;}
+.bar-track{background:var(--bg3);border-radius:6px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+/* ─── TABLE ──────────────────────────────────────────────────── */
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt th{padding:9px 11px;text-align:right;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg2);}
+.dt th:first-child{text-align:left;}
+.dt td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text2);text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px;}
+.dt td:first-child{text-align:left;font-family:'Lexend',sans-serif;font-size:13px;color:var(--text);}
+.dt tr:hover td{background:var(--bg2);}
+.dt tr.tot td{background:var(--bg2);font-weight:600;color:var(--text);border-top:1px solid var(--border2);border-bottom:none;}
+.dt tr.tot td:last-child{color:var(--accent);font-size:14px;}
+
+/* ─── ROW DETAIL ─────────────────────────────────────────────── */
+.rd{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.rd:last-child{border-bottom:none;}
+.rd .rl{color:var(--text2);}
+.rd .rr{font-family:'JetBrains Mono',monospace;font-weight:500;}
+.rd.s .rl{color:var(--text);font-weight:600;}
+.rd.s .rr{font-weight:700;}
+
+/* ─── DONUT ──────────────────────────────────────────────────── */
+svg.donut{transform:rotate(-90deg);}
+.donut-track{fill:none;stroke:var(--bg3);stroke-width:8;}
+.donut-progress{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1);}
+.donut-lbl{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;}
+.donut-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;}
+.donut-unit{font-size:9px;color:var(--text3);}
+
+/* ─── GAUGE SECTION ──────────────────────────────────────────── */
+.gsec{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:18px;}
+.gsec-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+
+/* ─── COMPARISON SPECIFIC ────────────────────────────────────── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.cmp-card{border-radius:14px;padding:18px;border:1px solid;}
+.cmp-card.e0{background:var(--e0-bg);border-color:var(--e0-border);}
+.cmp-card.e1{background:var(--e1-bg);border-color:var(--e1-border);}
+.cmp-card .cc-name{font-size:12px;font-weight:600;margin-bottom:12px;}
+.cmp-card.e0 .cc-name{color:var(--e0);}
+.cmp-card.e1 .cc-name{color:var(--e1);}
+.cmp-card .cc-main{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;margin-bottom:4px;}
+.cmp-card.e0 .cc-main{color:var(--accent);}
+.cmp-card.e1 .cc-main{color:var(--purple);}
+.cc-sub{font-size:11px;color:var(--text2);}
+.vs-bar{margin:18px 0;}
+.vs-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.vs-track{background:var(--bg3);border-radius:8px;height:12px;display:flex;overflow:hidden;}
+.vs-a{border-radius:8px 0 0 8px;height:100%;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.vs-b{border-radius:0 8px 8px 0;height:100%;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.diff-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
+.diff-badge.pos{background:var(--green-bg);border:1px solid #1e3d26;color:var(--green);}
+.diff-badge.neg{background:var(--red-bg);border:1px solid #3d1e22;color:var(--red);}
+
+/* ─── FOOTER ─────────────────────────────────────────────────── */
+.footer{margin-top:28px;padding:13px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text2);}
+.fv{display:flex;gap:20px;font-family:'JetBrains Mono',monospace;}
+
+/* ─── TOAST ──────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--green-bg);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 4px 20px rgba(63,185,80,.2);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+@media(max-width:640px){
+  .g2,.g3,.mg3,.cmp-grid{grid-template-columns:1fr;}
+  .top-nav{flex-direction:column;gap:14px;align-items:flex-start;}
+  .footer{flex-direction:column;gap:10px;}
+  .fv{flex-direction:column;gap:6px;}
+}
+@media print{.btn,.mode-bar,.emp-switcher,.inner-tabs,.toast{display:none!important;}}
+</style>
+</head>
+<body>
+<div style="max-width:900px;margin:0 auto;">
+
+<!-- ── TOP NAV ── -->
+<div class="top-nav">
+  <div class="brand">
+    <div class="brand-icon">🏭</div>
+    <div>
+      <div class="brand-name">Hệ Thống Tính Lương</div>
+      <div class="brand-sub" id="topSub">Tháng 5/2025 · 2 nhân viên</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="window.print()">🖨️ In</button>
+    <button class="btn btn-danger" onclick="handleResetAll()">↺ Reset</button>
+    <button class="btn btn-primary" id="saveBtn" onclick="handleSave()">💾 Lưu</button>
+  </div>
+</div>
+
+<!-- ── MODE BAR ── -->
+<div class="mode-bar">
+  <button class="mode-btn m0 active" onclick="switchMode(0,this)">👤 Bảo Trì</button>
+  <button class="mode-btn m1" onclick="switchMode(1,this)">👤 Đan Lưới</button>
+  <button class="mode-btn m2" onclick="switchMode(2,this)">⚖️ So sánh</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- VIEW 0: NHÂN VIÊN 1 (Bảng lương sản xuất) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="view active" id="view0">
+  <div class="inner-tabs" id="itabs0">
+    <button class="itab active" onclick="switchInner(0,0,this)">📝 Nhập liệu</button>
+    <button class="itab" onclick="switchInner(0,1,this)">📊 Tổng hợp</button>
+    <button class="itab" onclick="switchInner(0,2,this)">⏱️ Chi tiết giờ</button>
+    <button class="itab" onclick="switchInner(0,3,this)">📐 Đo lường</button>
+  </div>
+
+  <!-- IP0-0: NHẬP LIỆU -->
+  <div class="ipanel active" id="ip0-0">
+    <div class="stitle e0">Thông tin nhân viên</div>
+    <div class="g2" style="margin-bottom:13px;">
+      <div class="field"><label>Họ tên</label><input type="text" id="e0_name" value="Nguyễn Văn A" oninput="recalc(0)"/></div>
+      <div class="field"><label>Bộ phận</label><input type="text" id="e0_dept" value="Bảo Trì" oninput="recalc(0)"/></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label>Tháng</label><input type="number" id="e0_month" value="5" min="1" max="12" oninput="recalc(0)"/></div>
+      <div class="field"><label>Năm</label><input type="number" id="e0_year" value="2025" oninput="recalc(0)"/></div>
+      <div class="field"><label>Đơn giá giờ cơ bản (đ/h)</label><input type="number" id="e0_rate" value="35433" oninput="recalc(0)"/><span class="field-hint">Sheet Đơn giá giờ: 35,433đ</span></div>
+    </div>
+    <div class="stitle e0">Số ngày làm việc</div>
+    <div class="g3">
+      <div class="field"><label>Ca ngày (ngày)</label><input type="number" id="e0_days" value="15" min="0" oninput="recalc(0)"/><span class="field-hint">8h/ca → 120h</span></div>
+      <div class="field"><label>Ca đêm (ngày)</label><input type="number" id="e0_nights" value="8" min="0" oninput="recalc(0)"/><span class="field-hint">8h/ca → 64h</span></div>
+      <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e0_gcn" value="3" min="0" oninput="recalc(0)"/><span class="field-hint">12h/ca → 36h</span></div>
+      <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e0_gcd" value="0" min="0" oninput="recalc(0)"/></div>
+      <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e0_leave" value="3" min="0" oninput="recalc(0)"/><span class="field-hint">12h/ngày</span></div>
+    </div>
+    <div class="stitle e0">Phụ cấp</div>
+    <div class="g3">
+      <div class="field"><label>Thâm niên 3 tháng (đ)</label><input type="number" id="e0_tn3" value="300000" oninput="recalc(0)"/></div>
+      <div class="field"><label>Đi lại (đ)</label><input type="number" id="e0_dl" value="200000" oninput="recalc(0)"/></div>
+      <div class="field"><label>Chuyên cần (đ)</label><input type="number" id="e0_cc" value="500000" oninput="recalc(0)"/></div>
+      <div class="field"><label>Thâm niên 6 tháng (đ)</label><input type="number" id="e0_tn6" value="500000" oninput="recalc(0)"/></div>
+      <div class="field"><label>Trách nhiệm (đ)</label><input type="number" id="e0_tnhiem" value="0" oninput="recalc(0)"/></div>
+      <div class="field"><label>Vị trí (đ)</label><input type="number" id="e0_vt" value="500000" oninput="recalc(0)"/></div>
+    </div>
+    <div class="stitle e0">Khấu trừ</div>
+    <div class="g3">
+      <div class="field"><label>Mức đóng BHXH (đ)</label><input type="number" id="e0_bhxh" value="6000000" oninput="recalc(0)"/><span class="field-hint">10.5% = 630,000đ</span></div>
+      <div class="field"><label>Chênh lệch BHXH/BHYT (đ)</label><input type="number" id="e0_cl" value="0" oninput="recalc(0)"/></div>
+      <div class="field"><label>Phí công đoàn (đ)</label><input type="number" id="e0_cd" value="30000" oninput="recalc(0)"/></div>
+      <div class="field"><label>Thuế TNCN (đ)</label><input type="number" id="e0_tncn" value="66209" oninput="recalc(0)"/></div>
+    </div>
+  </div>
+
+  <!-- IP0-1: TỔNG HỢP -->
+  <div class="ipanel" id="ip0-1">
+    <div class="hero e0">
+      <div class="hero-lbl">💵 Lương thực nhận — <span id="e0_heroName">Nguyễn Văn A</span></div>
+      <div class="hero-val" id="e0_thucnhan">0đ</div>
+      <div class="hero-sub">Sau khấu trừ BHXH, thuế TNCN và phí công đoàn</div>
+    </div>
+    <div class="mg3">
+      <div class="mc green"><div class="mc-lbl">Lương theo giờ</div><div class="mc-val" id="e0_tonggio">0đ</div></div>
+      <div class="mc amber"><div class="mc-lbl">Tổng phụ cấp</div><div class="mc-val" id="e0_tongpc">0đ</div></div>
+      <div class="mc"><div class="mc-lbl">Tổng lương gộp</div><div class="mc-val" id="e0_tongluong">0đ</div></div>
+      <div class="mc red"><div class="mc-lbl">Tổng khấu trừ</div><div class="mc-val" id="e0_tongkt">0đ</div></div>
+      <div class="mc blue"><div class="mc-lbl">BHXH (10.5%)</div><div class="mc-val" id="e0_bhxhkt">0đ</div></div>
+      <div class="mc"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" id="e0_totalh">0h</div></div>
+    </div>
+    <div class="stitle e0">Cơ cấu lương</div>
+    <div id="e0_bars"></div>
+    <div class="stitle e0">Chi tiết khấu trừ</div>
+    <div id="e0_deduct"></div>
+  </div>
+
+  <!-- IP0-2: CHI TIẾT GIỜ -->
+  <div class="ipanel" id="ip0-2">
+    <div class="stitle e0">Hệ số & Giờ làm</div>
+    <div style="overflow-x:auto;">
+      <table class="dt"><thead><tr>
+        <th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th>
+      </tr></thead><tbody id="e0_htable"></tbody></table>
+    </div>
+    <div class="stitle e0" style="margin-top:18px;">Chi tiết phụ cấp</div>
+    <div id="e0_pcdetail"></div>
+  </div>
+
+  <!-- IP0-3: ĐO LƯỜNG -->
+  <div class="ipanel" id="ip0-3">
+    <div class="stitle e0">Biểu đồ tỷ lệ</div>
+    <div class="mg2" style="margin-bottom:16px;">
+      <div class="mc" style="text-align:center;padding:18px;">
+        <div class="mc-lbl" style="margin-bottom:12px;">Lương giờ / Tổng lương</div>
+        <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
+            <circle class="donut-track" cx="60" cy="60" r="50"/>
+            <circle class="donut-progress" id="e0_d1" cx="60" cy="60" r="50" stroke="#388bfd" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="donut-lbl"><div class="donut-val" id="e0_d1v">0%</div><div class="donut-unit">giờ làm</div></div>
+        </div>
+      </div>
+      <div class="mc" style="text-align:center;padding:18px;">
+        <div class="mc-lbl" style="margin-bottom:12px;">Thực nhận / Tổng lương</div>
+        <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
+            <circle class="donut-track" cx="60" cy="60" r="50"/>
+            <circle class="donut-progress" id="e0_d2" cx="60" cy="60" r="50" stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="donut-lbl"><div class="donut-val" id="e0_d2v">0%</div><div class="donut-unit">thực nhận</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="gsec">
+      <div class="gsec-title">⚖️ So sánh với mức lương tham chiếu</div>
+      <div class="field" style="margin-bottom:12px;"><label>Mức tham chiếu (đ)</label><input type="number" id="e0_ref" value="20000000" oninput="updateMeasure(0)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
+      <div class="bar-row">
+        <div class="bar-hdr"><span>Thực nhận vs tham chiếu</span><span class="badge bd-blue" id="e0_refpct">0%</span></div>
+        <div class="bar-track" style="height:11px;"><div class="bar-fill" id="e0_refbar" style="background:linear-gradient(90deg,#1c4a8a,#388bfd);width:0%;"></div></div>
+      </div>
+      <div class="mg2" style="margin-top:12px;">
+        <div class="mc blue" style="padding:12px 14px;"><div class="mc-lbl">Chênh lệch</div><div class="mc-val" id="e0_refdiff" style="font-size:15px;">0đ</div></div>
+        <div class="mc" style="padding:12px 14px;"><div class="mc-lbl">Giá trị bình quân/giờ</div><div class="mc-val" id="e0_perh" style="font-size:15px;">0đ</div></div>
+      </div>
+    </div>
+    <div class="gsec">
+      <div class="gsec-title">⏱️ Phân tích giờ làm</div>
+      <div id="e0_hbars"></div>
+    </div>
+    <div class="gsec">
+      <div class="gsec-title">🎯 Mô phỏng tăng lương</div>
+      <div class="field" style="margin-bottom:10px;"><label>Mức lương mục tiêu (đ)</label><input type="number" id="e0_target" value="20000000" oninput="updateSim(0)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
+      <div id="e0_sim" style="font-size:13px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:14px;line-height:1.9;"></div>
+    </div>
+  </div>
+</div><!-- /view0 -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- VIEW 1: NHÂN VIÊN 2 (Đan lưới) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="view" id="view1">
+  <div class="inner-tabs" id="itabs1">
+    <button class="itab active" onclick="switchInner(1,0,this)">📝 Nhập liệu</button>
+    <button class="itab" onclick="switchInner(1,1,this)">📊 Tổng hợp</button>
+    <button class="itab" onclick="switchInner(1,2,this)">⏱️ Chi tiết giờ</button>
+    <button class="itab" onclick="switchInner(1,3,this)">📐 Đo lường</button>
+  </div>
+
+  <!-- IP1-0: NHẬP LIỆU -->
+  <div class="ipanel active" id="ip1-0">
+    <div class="stitle e1">Thông tin nhân viên</div>
+    <div class="g2" style="margin-bottom:13px;">
+      <div class="field"><label>Họ tên</label><input type="text" id="e1_name" value="Nguyễn Thị B" oninput="recalc(1)"/></div>
+      <div class="field"><label>Bộ phận</label><input type="text" id="e1_dept" value="Đan Lưới" oninput="recalc(1)"/></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label>Tháng</label><input type="number" id="e1_month" value="5" min="1" max="12" oninput="recalc(1)"/></div>
+      <div class="field"><label>Năm</label><input type="number" id="e1_year" value="2025" oninput="recalc(1)"/></div>
+      <div class="field"><label>Đơn giá giờ cơ bản (đ/h)</label><input type="number" id="e1_rate" value="25962" oninput="recalc(1)"/><span class="field-hint">Sheet Đơn giá giờ: 25,962đ</span></div>
+    </div>
+    <div class="stitle e1">Số ngày làm việc</div>
+    <div class="g3">
+      <div class="field"><label>Ca ngày (ngày)</label><input type="number" id="e1_days" value="11" min="0" oninput="recalc(1)"/><span class="field-hint">8h/ca → 88h</span></div>
+      <div class="field"><label>Ca đêm (ngày)</label><input type="number" id="e1_nights" value="12" min="0" oninput="recalc(1)"/><span class="field-hint">8h/ca → 96h</span></div>
+      <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e1_gcn" value="0" min="0" oninput="recalc(1)"/></div>
+      <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e1_gcd" value="1" min="0" oninput="recalc(1)"/><span class="field-hint">12h/ca → 12h</span></div>
+      <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e1_leave" value="3" min="0" oninput="recalc(1)"/><span class="field-hint">12h/ngày</span></div>
+    </div>
+    <div class="stitle e1">Phụ cấp</div>
+    <div class="g3">
+      <div class="field"><label>Thâm niên 3 tháng (đ)</label><input type="number" id="e1_tn3" value="300000" oninput="recalc(1)"/></div>
+      <div class="field"><label>Đi lại (đ)</label><input type="number" id="e1_dl" value="200000" oninput="recalc(1)"/></div>
+      <div class="field"><label>Chuyên cần (đ)</label><input type="number" id="e1_cc" value="500000" oninput="recalc(1)"/></div>
+      <div class="field"><label>Thâm niên 6 tháng (đ)</label><input type="number" id="e1_tn6" value="700000" oninput="recalc(1)"/></div>
+      <div class="field"><label>Trách nhiệm (đ)</label><input type="number" id="e1_tnhiem" value="0" oninput="recalc(1)"/></div>
+      <div class="field"><label>Vị trí (đ)</label><input type="number" id="e1_vt" value="700000" oninput="recalc(1)"/></div>
+    </div>
+    <div class="stitle e1">Khấu trừ</div>
+    <div class="g3">
+      <div class="field"><label>Mức đóng BHXH (đ)</label><input type="number" id="e1_bhxh" value="5400000" oninput="recalc(1)"/><span class="field-hint">10.5% = 567,000đ</span></div>
+      <div class="field"><label>Chênh lệch BHXH/BHYT (đ)</label><input type="number" id="e1_cl" value="0" oninput="recalc(1)"/></div>
+      <div class="field"><label>Phí công đoàn (đ)</label><input type="number" id="e1_cd" value="27000" oninput="recalc(1)"/></div>
+      <div class="field"><label>Thuế TNCN (đ)</label><input type="number" id="e1_tncn" value="0" oninput="recalc(1)"/></div>
+    </div>
+  </div>
+
+  <!-- IP1-1: TỔNG HỢP -->
+  <div class="ipanel" id="ip1-1">
+    <div class="hero e1">
+      <div class="hero-lbl">💵 Lương thực nhận — <span id="e1_heroName">Nguyễn Thị B</span></div>
+      <div class="hero-val" id="e1_thucnhan">0đ</div>
+      <div class="hero-sub">Sau khấu trừ BHXH, thuế TNCN và phí công đoàn</div>
+    </div>
+    <div class="mg3">
+      <div class="mc green"><div class="mc-lbl">Lương theo giờ</div><div class="mc-val" id="e1_tonggio">0đ</div></div>
+      <div class="mc amber"><div class="mc-lbl">Tổng phụ cấp</div><div class="mc-val" id="e1_tongpc">0đ</div></div>
+      <div class="mc"><div class="mc-lbl">Tổng lương gộp</div><div class="mc-val" id="e1_tongluong">0đ</div></div>
+      <div class="mc red"><div class="mc-lbl">Tổng khấu trừ</div><div class="mc-val" id="e1_tongkt">0đ</div></div>
+      <div class="mc blue"><div class="mc-lbl">BHXH (10.5%)</div><div class="mc-val" id="e1_bhxhkt">0đ</div></div>
+      <div class="mc"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" id="e1_totalh">0h</div></div>
+    </div>
+    <div class="stitle e1">Cơ cấu lương</div>
+    <div id="e1_bars"></div>
+    <div class="stitle e1">Chi tiết khấu trừ</div>
+    <div id="e1_deduct"></div>
+  </div>
+
+  <!-- IP1-2: CHI TIẾT GIỜ -->
+  <div class="ipanel" id="ip1-2">
+    <div class="stitle e1">Hệ số & Giờ làm</div>
+    <div style="overflow-x:auto;">
+      <table class="dt"><thead><tr>
+        <th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th>
+      </tr></thead><tbody id="e1_htable"></tbody></table>
+    </div>
+    <div class="stitle e1" style="margin-top:18px;">Chi tiết phụ cấp</div>
+    <div id="e1_pcdetail"></div>
+  </div>
+
+  <!-- IP1-3: ĐO LƯỜNG -->
+  <div class="ipanel" id="ip1-3">
+    <div class="stitle e1">Biểu đồ tỷ lệ</div>
+    <div class="mg2" style="margin-bottom:16px;">
+      <div class="mc" style="text-align:center;padding:18px;">
+        <div class="mc-lbl" style="margin-bottom:12px;">Lương giờ / Tổng lương</div>
+        <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
+            <circle class="donut-track" cx="60" cy="60" r="50"/>
+            <circle class="donut-progress" id="e1_d1" cx="60" cy="60" r="50" stroke="#bc8cff" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="donut-lbl"><div class="donut-val" id="e1_d1v">0%</div><div class="donut-unit">giờ làm</div></div>
+        </div>
+      </div>
+      <div class="mc" style="text-align:center;padding:18px;">
+        <div class="mc-lbl" style="margin-bottom:12px;">Thực nhận / Tổng lương</div>
+        <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
+            <circle class="donut-track" cx="60" cy="60" r="50"/>
+            <circle class="donut-progress" id="e1_d2" cx="60" cy="60" r="50" stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="donut-lbl"><div class="donut-val" id="e1_d2v">0%</div><div class="donut-unit">thực nhận</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="gsec">
+      <div class="gsec-title">⚖️ So sánh với mức lương tham chiếu</div>
+      <div class="field" style="margin-bottom:12px;"><label>Mức tham chiếu (đ)</label><input type="number" id="e1_ref" value="15000000" oninput="updateMeasure(1)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
+      <div class="bar-row">
+        <div class="bar-hdr"><span>Thực nhận vs tham chiếu</span><span class="badge bd-purple" id="e1_refpct">0%</span></div>
+        <div class="bar-track" style="height:11px;"><div class="bar-fill" id="e1_refbar" style="background:linear-gradient(90deg,#2a1060,#9b59f8);width:0%;"></div></div>
+      </div>
+      <div class="mg2" style="margin-top:12px;">
+        <div class="mc purple" style="padding:12px 14px;"><div class="mc-lbl">Chênh lệch</div><div class="mc-val" id="e1_refdiff" style="font-size:15px;">0đ</div></div>
+        <div class="mc" style="padding:12px 14px;"><div class="mc-lbl">Giá trị bình quân/giờ</div><div class="mc-val" id="e1_perh" style="font-size:15px;">0đ</div></div>
+      </div>
+    </div>
+    <div class="gsec">
+      <div class="gsec-title">⏱️ Phân tích giờ làm</div>
+      <div id="e1_hbars"></div>
+    </div>
+    <div class="gsec">
+      <div class="gsec-title">🎯 Mô phỏng tăng lương</div>
+      <div class="field" style="margin-bottom:10px;"><label>Mức lương mục tiêu (đ)</label><input type="number" id="e1_target" value="15000000" oninput="updateSim(1)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
+      <div id="e1_sim" style="font-size:13px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:14px;line-height:1.9;"></div>
+    </div>
+  </div>
+</div><!-- /view1 -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- VIEW 2: SO SÁNH -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="view" id="view2">
+  <div class="stitle cmp">Tổng quan song song</div>
+  <div class="cmp-grid">
+    <div class="cmp-card e0">
+      <div class="cc-name">👤 <span id="cmp_n0">Nguyễn Văn A</span> · <span id="cmp_d0">Bảo Trì</span></div>
+      <div class="cc-main" id="cmp_tn0">0đ</div>
+      <div class="cc-sub">Lương thực nhận</div>
+    </div>
+    <div class="cmp-card e1">
+      <div class="cc-name">👤 <span id="cmp_n1">Nguyễn Thị B</span> · <span id="cmp_d1">Đan lưới</span></div>
+      <div class="cc-main" id="cmp_tn1">0đ</div>
+      <div class="cc-sub">Lương thực nhận</div>
+    </div>
+  </div>
+
+  <div style="margin:18px 0;padding:16px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="font-size:13px;color:var(--text2);">Chênh lệch lương thực nhận</div>
+    <div id="cmp_diff" class="diff-badge pos">+0đ</div>
+  </div>
+
+  <!-- VS bars -->
+  <div id="cmp_vsbars"></div>
+
+  <div class="stitle cmp" style="margin-top:22px;">So sánh chi tiết</div>
+  <div style="overflow-x:auto;">
+    <table class="dt" id="cmpTable">
+      <thead><tr>
+        <th>Chỉ tiêu</th>
+        <th style="color:var(--e0);" id="cmpH0">NV 1</th>
+        <th style="color:var(--e1);" id="cmpH1">NV 2</th>
+        <th>Chênh lệch</th>
+      </tr></thead>
+      <tbody id="cmpBody"></tbody>
+    </table>
+  </div>
+
+  <div class="stitle cmp" style="margin-top:22px;">Giờ làm theo loại ca</div>
+  <div id="cmp_hours"></div>
+
+  <div class="stitle cmp" style="margin-top:22px;">Phân tích tổng quỹ lương</div>
+  <div class="mg3" id="cmp_summary"></div>
+</div><!-- /view2 -->
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  <span id="footerTxt">Hệ thống tính lương · Tháng 5/2025</span>
+  <div class="fv">
+    <span style="color:var(--e0);">NV1: <strong id="f_tn0">0đ</strong></span>
+    <span style="color:var(--e1);">NV2: <strong id="f_tn1">0đ</strong></span>
+    <span style="color:var(--green);font-weight:600;">Tổng quỹ: <span id="f_total">0đ</span></span>
+  </div>
+</div>
+</div><!-- /container -->
+
+<div class="toast" id="toast">✅ Đã lưu thành công!</div>
+
+<script>
+const FMT = v => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(v||0);
+const $ = id => document.getElementById(id);
+const Nv = id => Number($(id)?.value)||0;
+let activeMode = 0;
+const innerState = {0:0, 1:0};
+
+// ── DEFAULTS ──────────────────────────────────────────────────────
+const DEF = {
+  0:{name:'Nguyễn Văn A',dept:'Bảo Trì',month:5,year:2025,rate:35433,days:15,nights:8,gcn:3,gcd:0,leave:3,tn3:300000,dl:200000,cc:500000,tn6:500000,tnhiem:0,vt:500000,bhxh:6000000,cl:0,cd:30000,tncn:66209},
+  1:{name:'Nguyễn Thị B',dept:'Đan Lưới',month:5,year:2025,rate:25962,days:11,nights:12,gcn:0,gcd:1,leave:3,tn3:300000,dl:200000,cc:500000,tn6:700000,tnhiem:0,vt:700000,bhxh:5400000,cl:0,cd:27000,tncn:0},
+};
+
+// ── CALC ──────────────────────────────────────────────────────────
+function getCalc(e) {
+  const r = Nv(`e${e}_rate`);
+  const hD=Nv(`e${e}_days`)*8,  hN=Nv(`e${e}_nights`)*8;
+  const hOD=Nv(`e${e}_days`)*4, hON=Nv(`e${e}_nights`)*4;
+  const hGN=Nv(`e${e}_gcn`)*12, hGE=Nv(`e${e}_gcd`)*12;
+  const hLv=Nv(`e${e}_leave`)*12;
+  const lD=hD*r, lN=hN*r*1.3, lOD=hOD*r*1.5, lON=hON*r*1.8;
+  const lGN=hGN*r*2.0, lGE=hGE*r*2.3, lLv=hLv*r;
+  const gio=lD+lN+lOD+lON+lGN+lGE+lLv;
+  const pc=Nv(`e${e}_tn3`)+Nv(`e${e}_dl`)+Nv(`e${e}_cc`)+Nv(`e${e}_tn6`)+Nv(`e${e}_tnhiem`)+Nv(`e${e}_vt`)+Nv(`e${e}_cl`);
+  const bhxh=Nv(`e${e}_bhxh`)*0.105;
+  const kt=bhxh+Nv(`e${e}_cd`)+Nv(`e${e}_tncn`);
+  const tong=gio+pc;
+  const tn=tong-kt;
+  const totalH=hD+hN+hOD+hON+hGN+hGE+hLv;
+  return {r,hD,hN,hOD,hON,hGN,hGE,hLv,lD,lN,lOD,lON,lGN,lGE,lLv,gio,pc,bhxh,kt,tong,tn,totalH};
+}
+
+// ── RECALC ────────────────────────────────────────────────────────
+function recalc(e) {
+  const c = getCalc(e);
+  const pfx = `e${e}_`;
+  const name = $(pfx+'name')?.value||'';
+  const dept = $(pfx+'dept')?.value||'';
+  const mo = $(pfx+'month')?.value||'';
+
+  $(pfx+'heroName').textContent = name;
+  $(pfx+'thucnhan').textContent = FMT(c.tn);
+  $(pfx+'tonggio').textContent  = FMT(c.gio);
+  $(pfx+'tongpc').textContent   = FMT(c.pc);
+  $(pfx+'tongluong').textContent= FMT(c.tong);
+  $(pfx+'tongkt').textContent   = FMT(c.kt);
+  $(pfx+'bhxhkt').textContent   = FMT(c.bhxh);
+  $(pfx+'totalh').textContent   = c.totalH+'h';
+
+  // bars
+  const bars=[
+    {l:'Lương theo giờ',v:c.gio,cls:'bd-blue',col:'#388bfd'},
+    {l:'Tổng phụ cấp',v:c.pc,cls:'bd-green',col:'#3fb950'},
+    {l:'Khấu trừ BHXH',v:c.bhxh,cls:'bd-red',col:'#f85149'},
+    {l:'Thuế TNCN',v:Nv(pfx+'tncn'),cls:'bd-red',col:'#f85149'},
+    {l:'Phí công đoàn',v:Nv(pfx+'cd'),cls:'bd-amber',col:'#d29922'},
+  ];
+  $(pfx+'bars').innerHTML=bars.map(b=>{
+    const p=c.tong>0?Math.min(100,(b.v/c.tong)*100):0;
+    return `<div class="bar-row"><div class="bar-hdr"><span>${b.l}</span><span><span class="badge ${b.cls}" style="margin-right:7px;">${p.toFixed(1)}%</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${FMT(b.v)}</span></span></div><div class="bar-track"><div class="bar-fill" style="width:${p}%;background:${b.col};"></div></div></div>`;
+  }).join('');
+
+  $(pfx+'deduct').innerHTML=[
+    [`BHXH (10.5% × ${Nv(pfx+'bhxh').toLocaleString('vi-VN')}đ)`,c.bhxh],
+    ['Phí công đoàn',Nv(pfx+'cd')],
+    ['Thuế TNCN',Nv(pfx+'tncn')],
+    ['Tổng khấu trừ',c.kt,'s'],
+  ].map(([l,v,s])=>`<div class="rd ${s||''}"><span class="rl">${l}</span><span class="rr" style="color:var(--red);">${FMT(v)}</span></div>`).join('');
+
+  // hours table
+  const rows=[
+    ['Ca ngày thường','bd-blue',1.0,Nv(pfx+'days'),8,c.hD,c.lD],
+    ['Ca đêm','bd-amber',1.3,Nv(pfx+'nights'),8,c.hN,c.lN],
+    ['OT ca ngày','bd-amber',1.5,Nv(pfx+'days'),4,c.hOD,c.lOD],
+    ['OT ca đêm','bd-red',1.8,Nv(pfx+'nights'),4,c.hON,c.lON],
+    ['Giãn ca ngày','bd-red',2.0,Nv(pfx+'gcn'),12,c.hGN,c.lGN],
+    ['Giãn ca đêm','bd-red',2.3,Nv(pfx+'gcd'),12,c.hGE,c.lGE],
+    ['Nghỉ có phép','bd-green',1.0,Nv(pfx+'leave'),12,c.hLv,c.lLv],
+  ];
+  $(pfx+'htable').innerHTML=rows.map(([n,bc,cf,d,h,th,a])=>`<tr><td>${n}</td><td style="text-align:right"><span class="badge ${bc}">${cf}x</span></td><td>${d}</td><td>${h}h</td><td style="font-weight:600">${th}h</td><td style="color:var(--text2)">${Math.round(c.r*cf).toLocaleString('vi-VN')}đ</td><td style="color:var(--accent);font-weight:600">${FMT(a)}</td></tr>`).join('')+`<tr class="tot"><td colspan="6">Tổng lương theo giờ</td><td>${FMT(c.gio)}</td></tr>`;
+
+  const phus=[['Thâm niên 3 tháng',pfx+'tn3'],['Đi lại',pfx+'dl'],['Chuyên cần',pfx+'cc'],['Thâm niên 6 tháng',pfx+'tn6'],['Trách nhiệm',pfx+'tnhiem'],['Vị trí',pfx+'vt'],['Chênh lệch BHXH/BHYT',pfx+'cl']];
+  $(pfx+'pcdetail').innerHTML=phus.map(([l,id])=>`<div class="rd"><span class="rl">${l}</span><span class="rr">${FMT(Nv(id))}</span></div>`).join('')+`<div class="rd s"><span class="rl">Tổng phụ cấp</span><span class="rr" style="color:var(--green)">${FMT(c.pc)}</span></div>`;
+
+  updateMeasure(e);
+  updateSim(e);
+  updateFooter();
+  renderComparison();
+}
+
+// ── MEASURE ───────────────────────────────────────────────────────
+function updateMeasure(e) {
+  const c=getCalc(e);
+  const pfx=`e${e}_`;
+  const color=e===0?'#388bfd':'#bc8cff';
+  const p1=c.tong>0?c.gio/c.tong:0, o1=314-(314*p1);
+  $(pfx+'d1').style.strokeDashoffset=o1; $(pfx+'d1v').textContent=(p1*100).toFixed(1)+'%';
+  const p2=c.tong>0?c.tn/c.tong:0, o2=314-(314*p2);
+  $(pfx+'d2').style.strokeDashoffset=o2; $(pfx+'d2v').textContent=(p2*100).toFixed(1)+'%';
+  const ref=Number($(pfx+'ref')?.value)||20000000;
+  const rp=Math.min(150,ref>0?(c.tn/ref)*100:0);
+  $(pfx+'refbar').style.width=Math.min(100,rp)+'%';
+  $(pfx+'refbar').style.background=rp>=100?'linear-gradient(90deg,#1b3d22,#3fb950)':`linear-gradient(90deg,${e===0?'#1c4a8a':'#2a1060'},${e===0?'#388bfd':'#9b59f8'})`;
+  $(pfx+'refpct').textContent=rp.toFixed(1)+'%';
+  const diff=c.tn-ref;
+  $(pfx+'refdiff').textContent=(diff>=0?'+':'')+FMT(diff);
+  $(pfx+'refdiff').style.color=diff>=0?'var(--green)':'var(--red)';
+  $(pfx+'perh').textContent=c.totalH>0?FMT(Math.round(c.gio/c.totalH)):'0đ';
+
+  const th=c.totalH||1;
+  const hbars=[
+    {l:'Ca ngày',v:(c.hD/th)*100,col:'#388bfd',cls:'bd-blue'},
+    {l:'Ca đêm',v:(c.hN/th)*100,col:'#d29922',cls:'bd-amber'},
+    {l:'Giãn ca',v:((c.hGN+c.hGE)/th)*100,col:'#f85149',cls:'bd-red'},
+    {l:'Nghỉ phép',v:(c.hLv/th)*100,col:'#3fb950',cls:'bd-green'},
+  ];
+  $(pfx+'hbars').innerHTML=`<div class="mg2" style="margin-bottom:12px;">
+    <div class="mc blue" style="padding:12px 14px;"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" style="font-size:19px;">${c.totalH}h</div></div>
+    <div class="mc green" style="padding:12px 14px;"><div class="mc-lbl">Bình quân/giờ</div><div class="mc-val" style="font-size:15px;">${c.totalH>0?FMT(Math.round(c.gio/c.totalH)):'0đ'}</div></div>
+  </div>`+hbars.map(b=>`<div class="bar-row"><div class="bar-hdr"><span>${b.l}</span><span class="badge ${b.cls}">${b.v.toFixed(1)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${b.v}%;background:${b.col};"></div></div></div>`).join('');
+}
+
+// ── SIMULATION ────────────────────────────────────────────────────
+function updateSim(e) {
+  const c=getCalc(e);
+  const target=Number($(`e${e}_target`)?.value)||15000000;
+  const gap=target-c.tn;
+  if(gap<=0){
+    $(`e${e}_sim`).innerHTML=`<span style="color:var(--green)">✅ Đã đạt mục tiêu ${FMT(target)}! Thực nhận: ${FMT(c.tn)}</span>`;
+    return;
+  }
+  const v1ca=c.r*(8*1.0+4*1.5);
+  const nd=Math.ceil(gap/v1ca);
+  $(`e${e}_sim`).innerHTML=`<div style="color:var(--text)">Cần thêm <strong style="color:var(--accent)">${nd} ngày ca ngày</strong> (~${nd*12}h) để đạt <strong style="color:var(--amber)">${FMT(target)}</strong></div><div style="margin-top:6px;color:var(--text2)">Còn thiếu: <span style="color:var(--red)">${FMT(gap)}</span></div><div style="margin-top:4px;color:var(--text2)">Giá trị 1 ca ngày (8h+4hOT): <span style="color:var(--green)">${FMT(Math.round(v1ca))}</span></div>`;
+}
+
+// ── COMPARISON ────────────────────────────────────────────────────
+function renderComparison() {
+  const c0=getCalc(0), c1=getCalc(1);
+  const n0=$('e0_name')?.value||'NV1', n1=$('e1_name')?.value||'NV2';
+  const d0=$('e0_dept')?.value||'', d1=$('e1_dept')?.value||'';
+
+  $('cmp_n0').textContent=n0; $('cmp_d0').textContent=d0;
+  $('cmp_n1').textContent=n1; $('cmp_d1').textContent=d1;
+  $('cmp_tn0').textContent=FMT(c0.tn);
+  $('cmp_tn1').textContent=FMT(c1.tn);
+  $('cmpH0').textContent=n0.split(' ').pop();
+  $('cmpH1').textContent=n1.split(' ').pop();
+
+  const diff=c0.tn-c1.tn;
+  $('cmp_diff').textContent=(diff>=0?'+':'')+FMT(diff)+' ('+n0.split(' ').pop()+' - '+n1.split(' ').pop()+')';
+  $('cmp_diff').className='diff-badge '+(diff>=0?'pos':'neg');
+
+  // vs bars
+  const max=Math.max(c0.tong,c1.tong)||1;
+  const vss=[
+    {l:'Lương theo giờ',a:c0.gio,b:c1.gio},
+    {l:'Phụ cấp',a:c0.pc,b:c1.pc},
+    {l:'Khấu trừ',a:c0.kt,b:c1.kt},
+    {l:'Thực nhận',a:c0.tn,b:c1.tn},
+  ];
+  $('cmp_vsbars').innerHTML=vss.map(({l,a,b})=>{
+    const tot=(a+b)||1, pa=(a/tot)*100, pb=(b/tot)*100;
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;">
+        <span style="color:var(--e0);font-family:'JetBrains Mono',monospace;">${FMT(a)}</span>
+        <span style="font-weight:600;color:var(--text);">${l}</span>
+        <span style="color:var(--e1);font-family:'JetBrains Mono',monospace;">${FMT(b)}</span>
+      </div>
+      <div class="vs-track">
+        <div class="vs-a" style="width:${pa}%;background:linear-gradient(90deg,#1c4a8a,#388bfd);"></div>
+        <div class="vs-b" style="width:${pb}%;background:linear-gradient(90deg,#9b59f8,#bc8cff);"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // detail table
+  const rows=[
+    ['Đơn giá/giờ cơ bản',c0.r,c1.r],
+    ['Tổng giờ làm',c0.totalH,c1.totalH,'h'],
+    ['Lương theo giờ',c0.gio,c1.gio],
+    ['Tổng phụ cấp',c0.pc,c1.pc],
+    ['Tổng lương gộp',c0.tong,c1.tong],
+    ['BHXH khấu trừ',c0.bhxh,c1.bhxh],
+    ['Phí công đoàn',Nv('e0_cd'),Nv('e1_cd')],
+    ['Thuế TNCN',Nv('e0_tncn'),Nv('e1_tncn')],
+    ['Tổng khấu trừ',c0.kt,c1.kt],
+    ['Lương thực nhận',c0.tn,c1.tn],
+  ];
+  $('cmpBody').innerHTML=rows.map(([l,a,b,u])=>{
+    const d=a-b;
+    const fmt=u?`${a}${u}`:FMT(a);
+    const fmt2=u?`${b}${u}`:FMT(b);
+    const fmtd=u?`${d>0?'+':''}${d}${u}`:(d>=0?'+':'')+FMT(d);
+    const col=d>0?'var(--green)':d<0?'var(--red)':'var(--text2)';
+    return `<tr><td>${l}</td><td style="color:var(--e0);">${fmt}</td><td style="color:var(--e1);">${fmt2}</td><td style="color:${col};font-weight:600;">${fmtd}</td></tr>`;
+  }).join('');
+
+  // hours comparison
+  const hrows=[
+    ['Ca ngày thường',c0.hD+'h',c1.hD+'h'],
+    ['Ca đêm',c0.hN+'h',c1.hN+'h'],
+    ['OT ca ngày',c0.hOD+'h',c1.hOD+'h'],
+    ['OT ca đêm',c0.hON+'h',c1.hON+'h'],
+    ['Giãn ca ngày',c0.hGN+'h',c1.hGN+'h'],
+    ['Giãn ca đêm',c0.hGE+'h',c1.hGE+'h'],
+    ['Nghỉ có phép',c0.hLv+'h',c1.hLv+'h'],
+  ];
+  $('cmp_hours').innerHTML=`<div style="overflow-x:auto"><table class="dt"><thead><tr><th>Loại ca</th><th style="color:var(--e0)">${n0.split(' ').pop()}</th><th style="color:var(--e1)">${n1.split(' ').pop()}</th></tr></thead><tbody>${hrows.map(([l,a,b])=>`<tr><td>${l}</td><td style="color:var(--e0);font-weight:500">${a}</td><td style="color:var(--e1);font-weight:500">${b}</td></tr>`).join('')}</tbody></table></div>`;
+
+  const totalQuỹ=c0.tn+c1.tn;
+  $('cmp_summary').innerHTML=`
+    <div class="mc blue"><div class="mc-lbl">Tổng quỹ lương</div><div class="mc-val" style="font-size:16px;">${FMT(totalQuỹ)}</div></div>
+    <div class="mc green"><div class="mc-lbl">Tổng giờ công</div><div class="mc-val" style="font-size:16px;">${c0.totalH+c1.totalH}h</div></div>
+    <div class="mc amber"><div class="mc-lbl">Bình quân lương/người</div><div class="mc-val" style="font-size:16px;">${FMT(totalQuỹ/2)}</div></div>
+  `;
+}
+
+// ── FOOTER ────────────────────────────────────────────────────────
+function updateFooter() {
+  const c0=getCalc(0), c1=getCalc(1);
+  $('f_tn0').textContent=FMT(c0.tn);
+  $('f_tn1').textContent=FMT(c1.tn);
+  $('f_total').textContent=FMT(c0.tn+c1.tn);
+  const mo=$('e0_month')?.value||'5', yr=$('e0_year')?.value||'2025';
+  $('topSub').textContent=`Tháng ${mo}/${yr} · 2 nhân viên`;
+  $('footerTxt').textContent=`Hệ thống tính lương · Tháng ${mo}/${yr}`;
+}
+
+// ── NAV ───────────────────────────────────────────────────────────
+function switchMode(i, el) {
+  activeMode=i;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  $('view'+i)?.classList.add('active');
+  el.classList.add('active');
+}
+function switchInner(emp, tab, el) {
+  innerState[emp]=tab;
+  const container=$('view'+emp);
+  container.querySelectorAll('.ipanel').forEach(p=>p.classList.remove('active'));
+  container.querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
+  $(`ip${emp}-${tab}`)?.classList.add('active');
+  el.classList.add('active');
+}
+
+// ── SAVE / RESET ──────────────────────────────────────────────────
+function handleSave() {
+  const btn=$('saveBtn');
+  btn.textContent='✅ Đã lưu'; btn.className='btn btn-success';
+  $('toast').classList.add('show');
+  setTimeout(()=>{$('toast').classList.remove('show');btn.textContent='💾 Lưu';btn.className='btn btn-primary';},2500);
+}
+function handleResetAll() {
+  [0,1].forEach(e=>{
+    const d=DEF[e];
+    Object.entries(d).forEach(([k,v])=>{const el=$(`e${e}_${k}`);if(el)el.value=v;});
+    recalc(e);
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+recalc(0);
+recalc(1);
+</script>
+</body>
+</html>
