@@ -397,6 +397,37 @@ svg.donut{transform:rotate(-90deg);}
 .cal-brand-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0d2a1a,#1e6641);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 15px rgba(63,185,80,.3);}
 .cal-header-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
 
+/* ── LOCK / UNLOCK BUTTON ── */
+.cal-lock-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;border-radius:11px;border:1px solid;transition:all .3s;}
+.cal-lock-bar.locked{background:linear-gradient(135deg,#1a0a0a,#2d1010);border-color:#5a2020;}
+.cal-lock-bar.unlocked{background:linear-gradient(135deg,#0a1a10,#0d2a18);border-color:#1e6030;animation:unlock-pulse .5s ease;}
+@keyframes unlock-pulse{0%{box-shadow:0 0 0 0 rgba(63,185,80,.5)}70%{box-shadow:0 0 0 10px rgba(63,185,80,0)}100%{box-shadow:none}}
+.lock-status-text{flex:1;font-size:12px;font-weight:600;}
+.cal-lock-bar.locked .lock-status-text{color:#f85149;}
+.cal-lock-bar.unlocked .lock-status-text{color:var(--green);}
+.lock-status-sub{font-size:10px;font-weight:400;opacity:.75;display:block;margin-top:2px;}
+.btn-lock{padding:9px 18px;border-radius:8px;font-family:'Lexend',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid;transition:all .2s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em;}
+.btn-lock.locked{background:linear-gradient(135deg,#2a0f0f,#c0392b);border-color:#e74c3c;color:#fff;box-shadow:0 0 14px rgba(231,76,60,.35);}
+.btn-lock.locked:hover{box-shadow:0 0 22px rgba(231,76,60,.6);transform:translateY(-1px);}
+.btn-lock.unlocked{background:linear-gradient(135deg,#0f2a10,#27ae60);border-color:#2ecc71;color:#fff;box-shadow:0 0 14px rgba(46,204,113,.35);}
+.btn-lock.unlocked:hover{box-shadow:0 0 22px rgba(46,204,113,.6);transform:translateY(-1px);}
+
+/* Countdown ring */
+.lock-countdown{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:700;}
+.lock-countdown.warning{color:var(--amber);}
+.lock-countdown.urgent{color:var(--red);}
+.countdown-ring{position:relative;width:28px;height:28px;flex-shrink:0;}
+.countdown-ring svg{transform:rotate(-90deg);}
+.countdown-track{fill:none;stroke:var(--bg4);stroke-width:3;}
+.countdown-arc{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .5s;}
+.countdown-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;font-family:'JetBrains Mono',monospace;}
+
+/* Cal-wrap locked state — dim + no-pointer */
+.cal-wrap.cal-locked{position:relative;pointer-events:none;}
+.cal-wrap.cal-locked::after{content:'🔒 Lịch ca đang khóa — nhấn MỞ KHÓA để chỉnh sửa';position:absolute;inset:0;background:rgba(13,17,23,.72);border-radius:inherit;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.01em;pointer-events:none;backdrop-filter:blur(1px);}
+/* Shift bar & drag hint locked */
+.shift-bar.cal-locked,.drag-hint.cal-locked{opacity:.4;pointer-events:none;}
+
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE — TABLET (≤768px)
 ═══════════════════════════════════════════════════════════════ */
@@ -526,6 +557,12 @@ svg.donut{transform:rotate(-90deg);}
 
   /* Apply strip — hidden, FAB handles it */
   .apply-strip{display:none;}
+
+  /* Lock bar */
+  .cal-lock-bar{padding:8px 11px;gap:8px;border-radius:9px;margin-bottom:10px;}
+  .btn-lock{padding:8px 14px;font-size:12px;}
+  .lock-countdown{font-size:11px;}
+  .cal-wrap.cal-locked::after{font-size:11px;}
 
   /* ────────────────────────────────
      SALARY VIEW
@@ -663,8 +700,28 @@ svg.donut{transform:rotate(-90deg);}
     <button class="nav-btn" onclick="calChangeMonth(+1)">Sau ›</button>
   </div>
 
+  <!-- LOCK / UNLOCK BAR -->
+  <div class="cal-lock-bar locked" id="calLockBar">
+    <div class="lock-status-text" id="calLockStatusText">
+      🔒 Lịch ca đang khóa
+      <span class="lock-status-sub" id="calLockStatusSub">Nhấn MỞ KHÓA để bắt đầu chỉnh sửa ca</span>
+    </div>
+    <div class="lock-countdown" id="calLockCountdown" style="display:none;">
+      <div class="countdown-ring">
+        <svg width="28" height="28" viewBox="0 0 28 28">
+          <circle class="countdown-track" cx="14" cy="14" r="11"/>
+          <circle class="countdown-arc" id="countdownArc" cx="14" cy="14" r="11"
+            stroke="var(--green)" stroke-dasharray="69.1" stroke-dashoffset="0"/>
+        </svg>
+        <div class="countdown-num" id="countdownNum">10</div>
+      </div>
+      <span id="calLockCountdownLabel">giây</span>
+    </div>
+    <button class="btn-lock locked" id="calLockBtn" onclick="calToggleLock()">🔓 Mở khóa</button>
+  </div>
+
   <!-- Shift type selector -->
-  <div class="shift-bar">
+  <div class="shift-bar cal-locked" id="calShiftBar">
     <span class="shift-bar-label">Loại ca:</span>
     <button class="stype-btn s-day selected" id="stype_day" onclick="calSelectType('day')">☀️ Ca ngày</button>
     <button class="stype-btn s-night" id="stype_night" onclick="calSelectType('night')">🌙 Ca đêm</button>
@@ -674,10 +731,10 @@ svg.donut{transform:rotate(-90deg);}
     <button class="stype-btn s-holiday" id="stype_holiday" onclick="calSelectType('holiday')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" width="18" height="12" style="vertical-align:middle;border-radius:2px;margin-right:4px;"><rect width="30" height="20" fill="#DA251D"/><polygon points="15,3 16.76,8.43 22.43,8.43 17.84,11.57 19.6,17 15,13.86 10.4,17 12.16,11.57 7.57,8.43 13.24,8.43" fill="#FFFF00"/></svg> Nghỉ lễ</button>
   </div>
 
-  <div class="drag-hint">💡 Nhấn 1 ngày hoặc <strong style="color:var(--text)">kéo qua nhiều ngày</strong> để đánh dấu · <strong style="color:var(--amber)">Nhấn phải</strong> để ghi chú</div>
+  <div class="drag-hint cal-locked" id="calDragHint">💡 Nhấn 1 ngày hoặc <strong style="color:var(--text)">kéo qua nhiều ngày</strong> để đánh dấu · <strong style="color:var(--amber)">Nhấn phải</strong> để ghi chú</div>
 
   <!-- Calendar grid -->
-  <div class="cal-wrap">
+  <div class="cal-wrap cal-locked" id="calWrap">
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
@@ -1012,6 +1069,112 @@ const LUONG_KEY = 'luong_data_v1';   // salary data
 const CAL_KEY   = 'demca_v2';        // calendar data
 
 // ════════════════════════════════════════════════════════════════
+// LOCK / UNLOCK MODULE — bảo vệ lịch ca khỏi thao tác nhầm
+// ════════════════════════════════════════════════════════════════
+const CAL_LOCK_TIMEOUT = 10; // giây tự động khóa sau khi không thao tác
+
+let _calIsLocked = true;
+let _calLockTimer = null;       // setTimeout → tự khóa
+let _calCountdownInterval = null; // setInterval → cập nhật UI đếm ngược
+let _calCountdownSec = CAL_LOCK_TIMEOUT;
+
+// Hằng số SVG arc (r=11, circumference = 2π×11 ≈ 69.115)
+const _ARC_TOTAL = 2 * Math.PI * 11;
+
+function calSetLocked(locked) {
+  _calIsLocked = locked;
+  const bar   = $('calLockBar');
+  const btn   = $('calLockBtn');
+  const statusTxt = $('calLockStatusText');
+  const statusSub = $('calLockStatusSub');
+  const countdown = $('calLockCountdown');
+  const wrap  = $('calWrap');
+  const shiftBar = $('calShiftBar');
+  const dragHint = $('calDragHint');
+
+  if (locked) {
+    // ── TRẠNG THÁI KHÓA ──
+    bar.className      = 'cal-lock-bar locked';
+    btn.className      = 'btn-lock locked';
+    btn.textContent    = '🔓 Mở khóa';
+    statusTxt.innerHTML= '🔒 Lịch ca đang khóa<span class="lock-status-sub" id="calLockStatusSub">Nhấn MỞ KHÓA để bắt đầu chỉnh sửa ca</span>';
+    countdown.style.display = 'none';
+    wrap.classList.add('cal-locked');
+    shiftBar.classList.add('cal-locked');
+    dragHint.classList.add('cal-locked');
+    // Dừng timer
+    _calStopCountdown();
+  } else {
+    // ── TRẠNG THÁI MỞ ──
+    bar.className      = 'cal-lock-bar unlocked';
+    btn.className      = 'btn-lock unlocked';
+    btn.textContent    = '🔒 Khóa lại';
+    statusTxt.innerHTML= '🔓 Đang mở — có thể chỉnh sửa<span class="lock-status-sub" id="calLockStatusSub">Tự động khóa sau khi không thao tác</span>';
+    countdown.style.display = 'flex';
+    wrap.classList.remove('cal-locked');
+    shiftBar.classList.remove('cal-locked');
+    dragHint.classList.remove('cal-locked');
+    // Bắt đầu đếm ngược
+    _calStartCountdown();
+  }
+}
+
+function _calStartCountdown() {
+  _calStopCountdown();
+  _calCountdownSec = CAL_LOCK_TIMEOUT;
+  _calUpdateCountdownUI(_calCountdownSec);
+
+  _calCountdownInterval = setInterval(() => {
+    _calCountdownSec--;
+    _calUpdateCountdownUI(_calCountdownSec);
+    if (_calCountdownSec <= 0) {
+      _calStopCountdown();
+      calSetLocked(true);
+      showToast('🔒 Lịch ca đã tự động khóa', 'sync');
+    }
+  }, 1000);
+}
+
+function _calStopCountdown() {
+  if (_calCountdownInterval) { clearInterval(_calCountdownInterval); _calCountdownInterval = null; }
+  if (_calLockTimer)          { clearTimeout(_calLockTimer);          _calLockTimer = null; }
+}
+
+function _calUpdateCountdownUI(sec) {
+  const numEl  = $('countdownNum');
+  const arcEl  = $('countdownArc');
+  const cdEl   = $('calLockCountdown');
+  if (!numEl || !arcEl) return;
+
+  numEl.textContent = sec;
+  // Arc: đầy = 0 offset, hết = full offset
+  const offset = _ARC_TOTAL * (1 - sec / CAL_LOCK_TIMEOUT);
+  arcEl.style.strokeDashoffset = offset.toFixed(2);
+
+  // Màu theo mức cảnh báo
+  let color = 'var(--green)';
+  if (sec <= 3)       { color = 'var(--red)';   cdEl.className = 'lock-countdown urgent'; }
+  else if (sec <= 6)  { color = 'var(--amber)';  cdEl.className = 'lock-countdown warning'; }
+  else                {                           cdEl.className = 'lock-countdown'; }
+  arcEl.style.stroke = color;
+}
+
+// Gọi hàm này mỗi khi user thao tác trong lịch (kéo/nhấn ô)
+// → reset đồng hồ đếm ngược về 10s
+function calResetLockTimer() {
+  if (_calIsLocked) return;
+  _calCountdownSec = CAL_LOCK_TIMEOUT;
+  _calUpdateCountdownUI(_calCountdownSec);
+}
+
+function calToggleLock() {
+  calSetLocked(!_calIsLocked);
+  if (!_calIsLocked) {
+    showToast('🔓 Lịch ca đã mở — bắt đầu chỉnh sửa (10 giây)', 'sync');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
 // SALARY MODULE
 // ════════════════════════════════════════════════════════════════
 let activeMode = 0;
@@ -1336,6 +1499,7 @@ function calSwitchEmp(e){
   calEmp=e;
   $('calTab0').classList.toggle('active',e===0);
   $('calTab1').classList.toggle('active',e===1);
+  calSetLocked(true); // 🔒 Tự khóa khi chuyển nhân viên
   calRenderCalendar();
 }
 
@@ -1343,6 +1507,7 @@ function calChangeMonth(delta){
   calMonth+=delta;
   if(calMonth>11){calMonth=0;calYear++;}
   if(calMonth<0){calMonth=11;calYear--;}
+  calSetLocked(true); // 🔒 Tự khóa khi chuyển tháng
   calRenderCalendar();
 }
 
@@ -1411,6 +1576,7 @@ function calRenderCalendar(){
 let _longPressTimer=null;
 
 function calOnCellDown(day){
+  if(_calIsLocked) return; // 🔒 Đang khóa → bỏ qua
   // Long-press to open note (500ms)
   _longPressTimer=setTimeout(()=>{
     calIsDragging=false; calDragType=null;
@@ -1421,8 +1587,14 @@ function calOnCellDown(day){
   const cur=calData[calEmp][key];
   calDragType=(calSelType==='erase'||cur===calSelType)?'erase':calSelType;
   calMarkDay(day,calDragType);
+  calResetLockTimer(); // 🔄 Reset đếm ngược khi thao tác
 }
-function calOnCellEnter(day){if(!calIsDragging)return;clearTimeout(_longPressTimer);calMarkDay(day,calDragType);}
+function calOnCellEnter(day){
+  if(!calIsDragging)return;
+  clearTimeout(_longPressTimer);
+  calMarkDay(day,calDragType);
+  calResetLockTimer(); // 🔄 Reset đếm ngược khi kéo
+}
 function calOnCellUp(){clearTimeout(_longPressTimer);calIsDragging=false;calDragType=null;}
 document.addEventListener('mouseup',()=>{clearTimeout(_longPressTimer);calIsDragging=false;calDragType=null;});
 function calHandleTouchMove(e){
