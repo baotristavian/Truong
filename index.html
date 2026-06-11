@@ -708,6 +708,7 @@ svg.donut{transform:rotate(-90deg);}
       <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e0_gcn" value="3" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_gcn_hint">12h/ca → 36h</span></div>
       <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e0_gcd" value="0" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_gcd_hint">12h/ca → 0h</span></div>
       <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e0_leave" value="3" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_leave_hint">12h/ngày → 36h</span></div>
+      <div class="field"><label>Nghỉ lễ (ngày)</label><input type="number" id="e0_holiday" value="0" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_holiday_hint">12h/ngày → 0h</span></div>
     </div>
     <div class="stitle e0">Phụ cấp</div>
     <div class="g3">
@@ -716,7 +717,7 @@ svg.donut{transform:rotate(-90deg);}
       <div class="field"><label>Chuyên cần (đ)</label><input type="number" id="e0_cc" value="500000" oninput="recalc(0)"/></div>
       <div class="field"><label>Thâm niên 6 tháng (đ)</label><input type="number" id="e0_tn6" value="500000" oninput="recalc(0)"/></div>
       <div class="field"><label>Trách nhiệm (đ)</label><input type="number" id="e0_tnhiem" value="0" oninput="recalc(0)"/></div>
-      <div class="field"><label>Vị trí (đ)</label><input type="number" id="e0_vt" value="500000" oninput="recalc(0)"/></div>
+      <div class="field"><label>Vị trí (đ)</label><input type="number" id="e0_vt" value="500000" readonly style="opacity:0.7;cursor:not-allowed;background:var(--bg3);"/><span class="field-hint">(500,000đ ÷ 26) × (Ca ngày + Ca đêm + Nghỉ lễ)</span></div>
     </div>
     <div class="stitle e0">Khấu trừ</div>
     <div class="g3">
@@ -812,6 +813,7 @@ svg.donut{transform:rotate(-90deg);}
       <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e1_gcn" value="0" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_gcn_hint">12h/ca → 0h</span></div>
       <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e1_gcd" value="1" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_gcd_hint">12h/ca → 12h</span></div>
       <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e1_leave" value="3" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_leave_hint">12h/ngày → 36h</span></div>
+      <div class="field"><label>Nghỉ lễ (ngày)</label><input type="number" id="e1_holiday" value="0" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_holiday_hint">12h/ngày → 0h</span></div>
     </div>
     <div class="stitle e1">Phụ cấp</div>
     <div class="g3">
@@ -820,7 +822,7 @@ svg.donut{transform:rotate(-90deg);}
       <div class="field"><label>Chuyên cần (đ)</label><input type="number" id="e1_cc" value="500000" oninput="recalc(1)"/></div>
       <div class="field"><label>Thâm niên 6 tháng (đ)</label><input type="number" id="e1_tn6" value="700000" oninput="recalc(1)"/></div>
       <div class="field"><label>Trách nhiệm (đ)</label><input type="number" id="e1_tnhiem" value="0" oninput="recalc(1)"/></div>
-      <div class="field"><label>Vị trí (đ)</label><input type="number" id="e1_vt" value="700000" oninput="recalc(1)"/></div>
+      <div class="field"><label>Vị trí (đ)</label><input type="number" id="e1_vt" value="700000" readonly style="opacity:0.7;cursor:not-allowed;background:var(--bg3);"/><span class="field-hint">(800,000đ ÷ 26) × (Ca ngày + Ca đêm + Nghỉ lễ)</span></div>
     </div>
     <div class="stitle e1">Khấu trừ</div>
     <div class="g3">
@@ -1008,8 +1010,8 @@ let activeMode = 0;
 const innerState = {0:0, 1:0};
 
 const DEF = {
-  0:{name:'Nguyễn Văn A',dept:'Bảo Trì',rate:35433,days:15,nights:8,gcn:3,gcd:0,leave:3,tn3:300000,dl:200000,cc:500000,tn6:500000,tnhiem:0,vt:500000,bhxh:6000000,cl:0,cd:30000,tncn:66209},
-  1:{name:'Nguyễn Thị B',dept:'Đan Lưới',rate:25962,days:11,nights:12,gcn:0,gcd:1,leave:3,tn3:300000,dl:200000,cc:500000,tn6:700000,tnhiem:0,vt:700000,bhxh:5400000,cl:0,cd:27000,tncn:0},
+  0:{name:'Nguyễn Văn A',dept:'Bảo Trì',rate:35433,days:15,nights:8,gcn:3,gcd:0,leave:3,holiday:0,tn3:300000,dl:200000,cc:500000,tn6:500000,tnhiem:0,vt:500000,bhxh:6000000,cl:0,cd:30000,tncn:66209},
+  1:{name:'Nguyễn Thị B',dept:'Đan Lưới',rate:25962,days:11,nights:12,gcn:0,gcd:1,leave:3,holiday:0,tn3:300000,dl:200000,cc:500000,tn6:700000,tnhiem:0,vt:700000,bhxh:5400000,cl:0,cd:27000,tncn:0},
 };
 
 function getCalc(e) {
@@ -1018,16 +1020,17 @@ function getCalc(e) {
   const hOD=Nv(`e${e}_days`)*4, hON=Nv(`e${e}_nights`)*4;
   const hGN=Nv(`e${e}_gcn`)*12, hGE=Nv(`e${e}_gcd`)*12;
   const hLv=Nv(`e${e}_leave`)*12;
+  const hHd=Nv(`e${e}_holiday`)*12;
   const lD=hD*r, lN=hN*r*1.3, lOD=hOD*r*1.5, lON=hON*r*1.8;
-  const lGN=hGN*r*2.0, lGE=hGE*r*2.3, lLv=hLv*r;
-  const gio=lD+lN+lOD+lON+lGN+lGE+lLv;
+  const lGN=hGN*r*2.0, lGE=hGE*r*2.3, lLv=hLv*r, lHd=hHd*r;
+  const gio=lD+lN+lOD+lON+lGN+lGE+lLv+lHd;
   const pc=Nv(`e${e}_tn3`)+Nv(`e${e}_dl`)+Nv(`e${e}_cc`)+Nv(`e${e}_tn6`)+Nv(`e${e}_tnhiem`)+Nv(`e${e}_vt`)+Nv(`e${e}_cl`);
   const bhxh=Nv(`e${e}_bhxh`)*0.105;
   const kt=bhxh+Nv(`e${e}_cd`)+Nv(`e${e}_tncn`);
   const tong=gio+pc;
   const tn=tong-kt;
-  const totalH=hD+hN+hOD+hON+hGN+hGE+hLv;
-  return {r,hD,hN,hOD,hON,hGN,hGE,hLv,lD,lN,lOD,lON,lGN,lGE,lLv,gio,pc,bhxh,kt,tong,tn,totalH};
+  const totalH=hD+hN+hOD+hON+hGN+hGE+hLv+hHd;
+  return {r,hD,hN,hOD,hON,hGN,hGE,hLv,hHd,lD,lN,lOD,lON,lGN,lGE,lLv,lHd,gio,pc,bhxh,kt,tong,tn,totalH};
 }
 
 function updateHints(e) {
@@ -1041,9 +1044,18 @@ function updateHints(e) {
   set(p+'gcn_hint',`12h/ca → ${gcn*12}h`);
   set(p+'gcd_hint',`12h/ca → ${gcd*12}h`);
   set(p+'leave_hint',`12h/ngày → ${leave*12}h`);
+  const holiday=Number($(p+'holiday')?.value)||0;
+  set(p+'holiday_hint',`12h/ngày → ${holiday*12}h`);
 }
 
 function recalc(e) {
+  // Tự động tính Vị trí theo công thức
+  const vtRate = e===0 ? 500000 : 800000;
+  const vtDays = (Number($(`e${e}_days`)?.value)||0) + (Number($(`e${e}_nights`)?.value)||0) + (Number($(`e${e}_holiday`)?.value)||0);
+  const vtVal = Math.round((vtRate / 26) * vtDays);
+  const vtEl = $(`e${e}_vt`);
+  if(vtEl) vtEl.value = vtVal;
+
   updateHints(e);
   const c=getCalc(e);
   const pfx=`e${e}_`;
@@ -1085,6 +1097,7 @@ function recalc(e) {
     ['Giãn ca ngày','bd-red',2.0,Nv(pfx+'gcn'),12,c.hGN,c.lGN],
     ['Giãn ca đêm','bd-red',2.3,Nv(pfx+'gcd'),12,c.hGE,c.lGE],
     ['Nghỉ có phép','bd-green',1.0,Nv(pfx+'leave'),12,c.hLv,c.lLv],
+    ['Nghỉ lễ','bd-cyan',1.0,Nv(pfx+'holiday'),12,c.hHd,c.lHd],
   ];
   $(pfx+'htable').innerHTML=rows.map(([n,bc,cf,d,h,th,a])=>`<tr><td>${n}</td><td style="text-align:right"><span class="badge ${bc}">${cf}x</span></td><td>${d}</td><td>${h}h</td><td style="font-weight:600">${th}h</td><td style="color:var(--text2)">${Math.round(c.r*cf).toLocaleString('vi-VN')}đ</td><td style="color:var(--accent);font-weight:600">${FMT(a)}</td></tr>`).join('')+`<tr class="tot"><td colspan="6">Tổng lương theo giờ</td><td>${FMT(c.gio)}</td></tr>`;
 
@@ -1184,8 +1197,8 @@ function switchInner(emp, tab, el) {
 // ── SALARY SAVE/LOAD ─────────────────────────────────────────────
 // Lưu cài đặt lương nhưng KHÔNG lưu số ca (days/nights/gcn/gcd/leave)
 // Số ca luôn lấy từ lịch ca tháng hiện tại → tránh cache sai
-const SALARY_FIELDS = ['name','dept','rate','days','nights','gcn','gcd','leave','tn3','dl','cc','tn6','tnhiem','vt','bhxh','cl','cd','tncn'];
-const SALARY_FIELDS_NOSAVE = new Set(['days','nights','gcn','gcd','leave']); // không cache số ca
+const SALARY_FIELDS = ['name','dept','rate','days','nights','gcn','gcd','leave','holiday','tn3','dl','cc','tn6','tnhiem','vt','bhxh','cl','cd','tncn'];
+const SALARY_FIELDS_NOSAVE = new Set(['days','nights','gcn','gcd','leave','holiday','vt']); // không cache số ca và vị trí (tự tính)
 
 let _blockSalaryStorageSync = false;
 
@@ -1785,6 +1798,8 @@ const hadSaved = loadSalaryData();
     setField(`e${e}_gcn`,   counts.gcn);
     setField(`e${e}_gcd`,   counts.gcd);
     setField(`e${e}_leave`, counts.leave);
+    // Tính lại vị trí theo công thức sau khi có số ca
+    recalc(e);
   });
 })();
 </script>
