@@ -25,6 +25,7 @@
   --gcn-bg:#2d2212;    --gcn-border:#3d2e16;    --gcn-text:#d29922;
   --gcd-bg:#1a0d2e;    --gcd-border:#3d1a5e;    --gcd-text:#d880ff;
   --leave-bg:#1b2d22;  --leave-border:#1e3d26;  --leave-text:#3fb950;
+  --holiday-bg:#1a1a10; --holiday-border:#3d3a14; --holiday-text:#e8d44d;
   --deeppur:#d880ff;
   --blue-border:#1c3d5e;
   --green-border:#1e3d26;
@@ -243,6 +244,7 @@ svg.donut{transform:rotate(-90deg);}
 .stype-btn.s-gcn{border-color:var(--gcn-border);color:var(--gcn-text);background:var(--gcn-bg);}
 .stype-btn.s-gcd{border-color:var(--gcd-border);color:var(--gcd-text);background:var(--gcd-bg);}
 .stype-btn.s-leave{border-color:var(--leave-border);color:var(--leave-text);background:var(--leave-bg);}
+.stype-btn.s-holiday{border-color:var(--holiday-border);color:var(--holiday-text);background:var(--holiday-bg);}
 
 /* ── CALENDAR WRAPPER ── */
 .cal-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;}
@@ -268,11 +270,13 @@ svg.donut{transform:rotate(-90deg);}
 .day-cell.s-gcn   {background:var(--gcn-bg);border-color:var(--gcn-border);}
 .day-cell.s-gcd   {background:var(--gcd-bg);border-color:var(--gcd-border);}
 .day-cell.s-leave {background:var(--leave-bg);border-color:var(--leave-border);}
+.day-cell.s-holiday{background:var(--holiday-bg);border-color:var(--holiday-border);}
 .day-cell.s-day   .day-num{color:var(--day-text);}
 .day-cell.s-night .day-num{color:var(--night-text);}
 .day-cell.s-gcn   .day-num{color:var(--gcn-text);}
 .day-cell.s-gcd   .day-num{color:var(--gcd-text);}
 .day-cell.s-leave .day-num{color:var(--leave-text);}
+.day-cell.s-holiday .day-num{color:var(--holiday-text);}
 .day-shift-icon{font-size:14px;line-height:1;}
 .day-lunar{font-size:9px;color:var(--text3);margin-top:2px;font-family:'JetBrains Mono',monospace;}
 .day-cell.s-day   .day-lunar{color:#2a6db5;}
@@ -282,13 +286,14 @@ svg.donut{transform:rotate(-90deg);}
 .day-cell.s-leave .day-lunar{color:#1e6640;}
 
 /* ── SUMMARY PANEL ── */
-.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+.summary-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;}
 .sum-card{border-radius:10px;padding:10px 10px 8px;border:1px solid;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .sum-card.s-day  {background:var(--day-bg);border-color:var(--day-border);}
 .sum-card.s-night{background:var(--night-bg);border-color:var(--night-border);}
 .sum-card.s-gcn  {background:var(--gcn-bg);border-color:var(--gcn-border);}
 .sum-card.s-gcd  {background:var(--gcd-bg);border-color:var(--gcd-border);}
 .sum-card.s-leave{background:var(--leave-bg);border-color:var(--leave-border);}
+.sum-card.s-holiday{background:var(--holiday-bg);border-color:var(--holiday-border);}
 .sum-icon{font-size:16px;}
 .sum-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:center;line-height:1.3;}
 .sum-card.s-day   .sum-label{color:var(--day-text);}
@@ -296,12 +301,14 @@ svg.donut{transform:rotate(-90deg);}
 .sum-card.s-gcn   .sum-label{color:var(--gcn-text);}
 .sum-card.s-gcd   .sum-label{color:var(--gcd-text);}
 .sum-card.s-leave .sum-label{color:var(--leave-text);}
+.sum-card.s-holiday .sum-label{color:var(--holiday-text);}
 .sum-count{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;line-height:1;}
 .sum-card.s-day   .sum-count{color:var(--day-text);}
 .sum-card.s-night .sum-count{color:var(--night-text);}
 .sum-card.s-gcn   .sum-count{color:var(--gcn-text);}
 .sum-card.s-gcd   .sum-count{color:var(--gcd-text);}
 .sum-card.s-leave .sum-count{color:var(--leave-text);}
+.sum-card.s-holiday .sum-count{color:var(--holiday-text);}
 .sum-hours{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
 
 /* ── TOTAL ROW ── */
@@ -367,16 +374,18 @@ svg.donut{transform:rotate(-90deg);}
 .pv-day.s-gcn{background:var(--gcn-bg);border-color:var(--gcn-border);}
 .pv-day.s-gcd{background:var(--gcd-bg);border-color:var(--gcd-border);}
 .pv-day.s-leave{background:var(--leave-bg);border-color:var(--leave-border);}
+.pv-day.s-holiday{background:var(--holiday-bg);border-color:var(--holiday-border);}
 .pv-num{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:3px;}
 .pv-day.s-day .pv-num{color:var(--day-text);}
 .pv-day.s-night .pv-num{color:var(--night-text);}
 .pv-day.s-gcn .pv-num{color:var(--gcn-text);}
 .pv-day.s-gcd .pv-num{color:var(--gcd-text);}
 .pv-day.s-leave .pv-num{color:var(--leave-text);}
+.pv-day.s-holiday .pv-num{color:var(--holiday-text);}
 .pv-icon{font-size:12px;line-height:1;}
 .pv-lunar{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
 .pv-note-dot{width:4px;height:4px;border-radius:50%;background:var(--amber);position:absolute;bottom:3px;right:3px;}
-.pv-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;}
+.pv-summary{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px;}
 .pv-note-list{margin-top:8px;}
 .pv-note-item{background:var(--bg3);border:1px solid var(--amber-bg);border-radius:8px;padding:8px 11px;margin-bottom:7px;font-size:12px;}
 .pv-note-day{font-size:10px;color:var(--amber);font-weight:600;margin-bottom:3px;}
@@ -662,6 +671,7 @@ svg.donut{transform:rotate(-90deg);}
     <button class="stype-btn s-gcn" id="stype_gcn" onclick="calSelectType('gcn')">⚡ Giãn ca ngày</button>
     <button class="stype-btn s-gcd" id="stype_gcd" onclick="calSelectType('gcd')">⚡ Giãn ca đêm</button>
     <button class="stype-btn s-leave" id="stype_leave" onclick="calSelectType('leave')">🌿 Nghỉ phép</button>
+    <button class="stype-btn s-holiday" id="stype_holiday" onclick="calSelectType('holiday')">🎌 Nghỉ lễ</button>
   </div>
 
   <div class="drag-hint">💡 Nhấn 1 ngày hoặc <strong style="color:var(--text)">kéo qua nhiều ngày</strong> để đánh dấu · <strong style="color:var(--amber)">Nhấn phải</strong> để ghi chú</div>
@@ -678,6 +688,7 @@ svg.donut{transform:rotate(-90deg);}
     <div class="leg-item"><div class="leg-dot" style="background:var(--gcn-bg);border-color:var(--gcn-border);"></div>⚡ Giãn ca ngày (12h)</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--gcd-bg);border-color:var(--gcd-border);"></div>⚡ Giãn ca đêm (12h)</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--leave-bg);border-color:var(--leave-border);"></div>🌿 Nghỉ phép (12h)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--holiday-bg);border-color:var(--holiday-border);"></div>🎌 Nghỉ lễ (12h)</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--bg3);border-color:var(--border2);"></div>● Hôm nay</div>
   </div>
 
@@ -1235,8 +1246,8 @@ function handleResetAll() {
     });
     // Số ca từ lịch hiện tại
     const counts=calGetCounts(e,calYear,calMonth);
-    ['days','nights','gcn','gcd','leave'].forEach((f,i)=>{
-      const val=[counts.day,counts.night,counts.gcn,counts.gcd,counts.leave][i];
+    ['days','nights','gcn','gcd','leave','holiday'].forEach((f,i)=>{
+      const val=[counts.day,counts.night,counts.gcn,counts.gcd,counts.leave,counts.holiday][i];
       const el=$(`e${e}_${f}`);if(el)el.value=val;
     });
     recalc(e);
@@ -1254,6 +1265,7 @@ const SHIFT_CFG={
   gcn:  {label:'Giãn ca ngày',icon:'⚡',hours:12},
   gcd:  {label:'Giãn ca đêm', icon:'⚡',hours:12},
   leave:{label:'Nghỉ phép', icon:'🌿',hours:12},
+  holiday:{label:'Nghỉ lễ', icon:'🎌',hours:12},
 };
 
 const calToday=new Date();
@@ -1350,7 +1362,7 @@ function calUpdateCell(day){
   if(!el) return;
   const key=calDateKey(calYear,calMonth,day);
   const type=calData[calEmp][key];
-  el.classList.remove('s-day','s-night','s-gcn','s-gcd','s-leave');
+  el.classList.remove('s-day','s-night','s-gcn','s-gcd','s-leave','s-holiday');
   const iconEl=el.querySelector('.day-shift-icon');
   if(type&&SHIFT_CFG[type]){el.classList.add('s-'+type);if(iconEl)iconEl.textContent=SHIFT_CFG[type].icon;}
   else{if(iconEl)iconEl.textContent='';}
@@ -1423,13 +1435,13 @@ function calHandleTouchMove(e){
 }
 
 function calUpdateSummary(){
-  const counts={day:0,night:0,gcn:0,gcd:0,leave:0};
+  const counts={day:0,night:0,gcn:0,gcd:0,leave:0,holiday:0};
   const prefix=calDateKey(calYear,calMonth,1).slice(0,7);
   Object.entries(calData[calEmp]).forEach(([k,v])=>{if(k.startsWith(prefix)&&counts[v]!==undefined)counts[v]++;});
   const totalDays=Object.values(counts).reduce((a,b)=>a+b,0);
-  const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12;
+  const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12+counts.holiday*12;
   const otH=counts.day*4+counts.night*4;
-  const types=['day','night','gcn','gcd','leave'];
+  const types=['day','night','gcn','gcd','leave','holiday'];
   $('calSummaryGrid').innerHTML=types.map(t=>{const cfg=SHIFT_CFG[t];const h=counts[t]*cfg.hours;return `<div class="sum-card s-${t}"><div class="sum-icon">${cfg.icon}</div><div class="sum-count">${counts[t]}</div><div class="sum-label">${cfg.label}</div><div class="sum-hours">${h}h</div></div>`;}).join('');
   $('calTotalRow').innerHTML=`<span class="tr-label">Tổng ${VI_MONTHS[calMonth]} ${calYear}:</span><span class="total-chip tc-days">📅 ${totalDays} ca</span><span class="total-chip tc-hours">⏱ ${totalH}h làm</span>${otH>0?`<span class="total-chip tc-ot">OT +${otH}h</span>`:''}`;
   $('calSaveTxt').textContent=`${calEmp===0?'Bảo Trì':'Đan Lưới'} · ${VI_MONTHS[calMonth]} ${calYear} · ${totalDays} ca`;
@@ -1437,7 +1449,7 @@ function calUpdateSummary(){
 
 // ── APPLY CALENDAR → SALARY FIELDS ───────────────────────────────
 function calGetCounts(empIdx, year, month){
-  const counts={day:0,night:0,gcn:0,gcd:0,leave:0};
+  const counts={day:0,night:0,gcn:0,gcd:0,leave:0,holiday:0};
   const prefix=calDateKey(year,month,1).slice(0,7);
   Object.entries(calData[empIdx]).forEach(([k,v])=>{if(k.startsWith(prefix)&&counts[v]!==undefined)counts[v]++;});
   return counts;
@@ -1452,6 +1464,7 @@ function calPushToSalary(empIdx) {
   setField(`e${e}_gcn`,counts.gcn);
   setField(`e${e}_gcd`,counts.gcd);
   setField(`e${e}_leave`,counts.leave);
+  setField(`e${e}_holiday`,counts.holiday);
   // Flash sync
   flashSyncBadge('Đang cập nhật...');
 }
@@ -1681,12 +1694,12 @@ function pvRenderFromSnapshot(pvY, pvM, empIdx) {
   }
   $('pvCalGrid').innerHTML=html;
 
-  const counts={day:0,night:0,gcn:0,gcd:0,leave:0};
+  const counts={day:0,night:0,gcn:0,gcd:0,leave:0,holiday:0};
   Object.entries(snapData).forEach(([k,v])=>{if(k.startsWith(prefix)&&counts[v]!==undefined)counts[v]++;});
-  const types=['day','night','gcn','gcd','leave'];
+  const types=['day','night','gcn','gcd','leave','holiday'];
   $('pvSummary').innerHTML=types.map(t=>{const cfg=SHIFT_CFG[t];const h=counts[t]*cfg.hours;return `<div class="sum-card s-${t}"><div class="sum-icon">${cfg.icon}</div><div class="sum-count">${counts[t]}</div><div class="sum-label">${cfg.label}</div><div class="sum-hours">${h}h</div></div>`;}).join('');
   const totalDays=Object.values(counts).reduce((a,b)=>a+b,0);
-  const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12;
+  const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12+counts.holiday*12;
   const otH=counts.day*4+counts.night*4;
   $('pvTotalRow').innerHTML=`<span class="tr-label">Tổng ${VI_MONTHS[pvM]} ${pvY}:</span><span class="total-chip tc-days">📅 ${totalDays} ca</span><span class="total-chip tc-hours">⏱ ${totalH}h làm</span>${otH>0?`<span class="total-chip tc-ot">OT +${otH}h</span>`:''}`;
 
@@ -1773,6 +1786,7 @@ const hadSaved = loadSalaryData();
     setField(`e${e}_gcn`,   counts.gcn);
     setField(`e${e}_gcd`,   counts.gcd);
     setField(`e${e}_leave`, counts.leave);
+    setField(`e${e}_holiday`,counts.holiday);
     // Tính lại vị trí theo công thức sau khi có số ca
     recalc(e);
   });
