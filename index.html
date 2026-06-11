@@ -17,11 +17,20 @@
   --purple:#bc8cff;--purple-bg:#231b2e;
   --cyan:#39d0d8;--cyan-bg:#0d2530;
   --accent:#58a6ff;--glow:rgba(88,166,255,0.15);
-  /* employee accent colors */
   --e0:#58a6ff; --e0-bg:#0d1b2a; --e0-border:#1c3d5e;
   --e1:#bc8cff; --e1-bg:#1a1230; --e1-border:#3a2060;
+  /* calendar shift tokens */
+  --day-bg:#0d1b2a;    --day-border:#1c3d5e;    --day-text:#58a6ff;
+  --night-bg:#1a1230;  --night-border:#3d2d5e;  --night-text:#bc8cff;
+  --gcn-bg:#2d2212;    --gcn-border:#3d2e16;    --gcn-text:#d29922;
+  --gcd-bg:#1a0d2e;    --gcd-border:#3d1a5e;    --gcd-text:#d880ff;
+  --leave-bg:#1b2d22;  --leave-border:#1e3d26;  --leave-text:#3fb950;
+  --deeppur:#d880ff;
+  --blue-border:#1c3d5e;
+  --green-border:#1e3d26;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px;}
 
 /* ─── TOP NAV ─────────────────────────────────────────────────── */
@@ -34,14 +43,20 @@ body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* ─── MODE SWITCHER ──────────────────────────────────────────── */
 .mode-bar{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:12px;border:1px solid var(--border);margin-bottom:24px;}
-.mode-btn{flex:1;padding:10px 18px;border-radius:9px;border:none;background:transparent;color:var(--text2);font-family:'Lexend',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.mode-btn{flex:1;padding:10px 14px;border-radius:9px;border:none;background:transparent;color:var(--text2);font-family:'Lexend',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
 .mode-btn.active{color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.mode-btn.mcal.active{background:linear-gradient(135deg,#0a2010,#1e6641);}
 .mode-btn.m0.active{background:linear-gradient(135deg,#1c3a6e,#388bfd);}
 .mode-btn.m1.active{background:linear-gradient(135deg,#2a1060,#9b59f8);}
 .mode-btn.m2.active{background:linear-gradient(135deg,#1a2e1a,#3fb950);}
 .mode-btn:hover:not(.active){color:var(--text);background:var(--bg3);}
 
-/* ─── EMPLOYEE SWITCHER (inside employee modes) ─────────────── */
+/* ─── SYNC BADGE ─────────────────────────────────────────────── */
+.sync-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);transition:all .4s;}
+.sync-badge.syncing{background:var(--blue-dim);border-color:var(--blue-border);color:var(--accent);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+/* ─── EMPLOYEE SWITCHER ──────────────────────────────────────── */
 .emp-switcher{display:flex;gap:8px;margin-bottom:20px;}
 .emp-btn{padding:8px 20px;border-radius:8px;border:1px solid;font-family:'Lexend',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
 .emp-btn.e0{border-color:var(--e0-border);color:var(--text2);background:transparent;}
@@ -78,6 +93,7 @@ body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--text);min-
 .stitle.e0::before{background:var(--e0);}
 .stitle.e1::before{background:var(--e1);}
 .stitle.cmp::before{background:var(--green);}
+.stitle.cal::before{background:var(--green);}
 
 /* ─── FORM ───────────────────────────────────────────────────── */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -167,7 +183,7 @@ svg.donut{transform:rotate(-90deg);}
 .gsec{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:18px;}
 .gsec-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
 
-/* ─── COMPARISON SPECIFIC ────────────────────────────────────── */
+/* ─── COMPARISON ─────────────────────────────────────────────── */
 .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .cmp-card{border-radius:14px;padding:18px;border:1px solid;}
 .cmp-card.e0{background:var(--e0-bg);border-color:var(--e0-border);}
@@ -193,16 +209,367 @@ svg.donut{transform:rotate(-90deg);}
 .fv{display:flex;gap:20px;font-family:'JetBrains Mono',monospace;}
 
 /* ─── TOAST ──────────────────────────────────────────────────── */
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--green-bg);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 4px 20px rgba(63,185,80,.2);}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--green-bg);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 4px 20px rgba(63,185,80,.2);pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 
+/* ═══════════════════════════════════════════════════════════════
+   CALENDAR (view3) STYLES
+═══════════════════════════════════════════════════════════════ */
+/* ── EMPLOYEE TABS (calendar) ── */
+.cal-emp-tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:11px;border:1px solid var(--border);margin-bottom:20px;}
+.cal-emp-tab{flex:1;padding:9px 14px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-family:'Lexend',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.cal-emp-tab.bt.active{background:linear-gradient(135deg,var(--blue-dim),#1a3a6a);color:var(--day-text);box-shadow:0 2px 8px rgba(88,166,255,.2);}
+.cal-emp-tab.dl.active{background:linear-gradient(135deg,var(--night-bg),#2a1860);color:var(--purple);box-shadow:0 2px 8px rgba(188,140,255,.2);}
+.cal-emp-tab:hover:not(.active){background:var(--bg3);color:var(--text);}
+
+/* ── MONTH NAV ── */
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.month-nav-title{font-size:17px;font-weight:700;color:var(--text);text-align:center;flex:1;}
+.month-nav-title .year{font-size:13px;color:var(--text2);font-weight:400;margin-left:6px;}
+.nav-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:14px;font-family:'Lexend',sans-serif;font-weight:600;transition:all .15s;}
+.nav-btn:hover{color:var(--text);background:var(--bg4);}
+
+/* ── SHIFT TYPE SELECTOR ── */
+.shift-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.shift-bar-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-right:2px;}
+.stype-btn{padding:6px 13px;border-radius:8px;border:1px solid;font-family:'Lexend',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}
+.stype-btn:hover{transform:translateY(-1px);}
+.stype-btn.selected{box-shadow:0 0 0 2px #fff4,0 2px 10px rgba(0,0,0,.4);}
+.stype-btn.eraser{border-color:var(--border2);color:var(--text2);background:transparent;}
+.stype-btn.eraser:hover{background:var(--bg3);}
+.stype-btn.eraser.selected{background:var(--bg3);}
+.stype-btn.s-day{border-color:var(--day-border);color:var(--day-text);background:var(--day-bg);}
+.stype-btn.s-night{border-color:var(--night-border);color:var(--night-text);background:var(--night-bg);}
+.stype-btn.s-gcn{border-color:var(--gcn-border);color:var(--gcn-text);background:var(--gcn-bg);}
+.stype-btn.s-gcd{border-color:var(--gcd-border);color:var(--gcd-text);background:var(--gcd-bg);}
+.stype-btn.s-leave{border-color:var(--leave-border);color:var(--leave-text);background:var(--leave-bg);}
+
+/* ── CALENDAR WRAPPER ── */
+.cal-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;}
+
+/* ── DOW HEADERS ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.dow-cell{text-align:center;padding:6px 2px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);}
+.dow-cell.sun{color:var(--red);}
+.dow-cell.sat{color:var(--blue);}
+
+/* ── DAY CELLS ── */
+.day-cell{position:relative;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s,transform .1s;user-select:none;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:6px 4px 4px;}
+.day-cell:hover{transform:scale(1.04);}
+.day-cell.empty{cursor:default;pointer-events:none;}
+.day-cell.today .day-num::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.day-num{position:relative;font-size:13px;font-weight:600;line-height:1;margin-bottom:4px;}
+.day-cell.sun .day-num{color:var(--red);}
+.day-cell.sat .day-num{color:var(--blue);}
+.day-cell.normal:not([class*=" s-"]) .day-num{color:var(--text2);}
+.day-cell.normal:not([class*=" s-"]):hover{background:var(--bg3);border-color:var(--border2);}
+.day-cell.s-day   {background:var(--day-bg);border-color:var(--day-border);}
+.day-cell.s-night {background:var(--night-bg);border-color:var(--night-border);}
+.day-cell.s-gcn   {background:var(--gcn-bg);border-color:var(--gcn-border);}
+.day-cell.s-gcd   {background:var(--gcd-bg);border-color:var(--gcd-border);}
+.day-cell.s-leave {background:var(--leave-bg);border-color:var(--leave-border);}
+.day-cell.s-day   .day-num{color:var(--day-text);}
+.day-cell.s-night .day-num{color:var(--night-text);}
+.day-cell.s-gcn   .day-num{color:var(--gcn-text);}
+.day-cell.s-gcd   .day-num{color:var(--gcd-text);}
+.day-cell.s-leave .day-num{color:var(--leave-text);}
+.day-shift-icon{font-size:14px;line-height:1;}
+.day-lunar{font-size:9px;color:var(--text3);margin-top:2px;font-family:'JetBrains Mono',monospace;}
+.day-cell.s-day   .day-lunar{color:#2a6db5;}
+.day-cell.s-night .day-lunar{color:#7040b8;}
+.day-cell.s-gcn   .day-lunar{color:#8a6010;}
+.day-cell.s-gcd   .day-lunar{color:#8a40a8;}
+.day-cell.s-leave .day-lunar{color:#1e6640;}
+
+/* ── SUMMARY PANEL ── */
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+.sum-card{border-radius:10px;padding:10px 10px 8px;border:1px solid;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.sum-card.s-day  {background:var(--day-bg);border-color:var(--day-border);}
+.sum-card.s-night{background:var(--night-bg);border-color:var(--night-border);}
+.sum-card.s-gcn  {background:var(--gcn-bg);border-color:var(--gcn-border);}
+.sum-card.s-gcd  {background:var(--gcd-bg);border-color:var(--gcd-border);}
+.sum-card.s-leave{background:var(--leave-bg);border-color:var(--leave-border);}
+.sum-icon{font-size:16px;}
+.sum-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:center;line-height:1.3;}
+.sum-card.s-day   .sum-label{color:var(--day-text);}
+.sum-card.s-night .sum-label{color:var(--night-text);}
+.sum-card.s-gcn   .sum-label{color:var(--gcn-text);}
+.sum-card.s-gcd   .sum-label{color:var(--gcd-text);}
+.sum-card.s-leave .sum-label{color:var(--leave-text);}
+.sum-count{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;line-height:1;}
+.sum-card.s-day   .sum-count{color:var(--day-text);}
+.sum-card.s-night .sum-count{color:var(--night-text);}
+.sum-card.s-gcn   .sum-count{color:var(--gcn-text);}
+.sum-card.s-gcd   .sum-count{color:var(--gcd-text);}
+.sum-card.s-leave .sum-count{color:var(--leave-text);}
+.sum-hours{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* ── TOTAL ROW ── */
+.total-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);margin-bottom:14px;}
+.total-row .tr-label{font-size:12px;color:var(--text2);flex:1;min-width:80px;}
+.total-chip{padding:4px 11px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;}
+.tc-hours{background:var(--blue-dim);border:1px solid var(--blue-border);color:var(--accent);}
+.tc-days{background:var(--bg2);border:1px solid var(--border2);color:var(--text);}
+.tc-ot{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber);}
+
+/* ── APPLY STRIP ── */
+.apply-strip{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 14px;background:linear-gradient(135deg,#0a2010,#0d2518);border:1px solid var(--green-border);border-radius:10px;margin-bottom:6px;}
+.apply-strip .as-label{font-size:12px;color:var(--text2);}
+.apply-strip .as-label strong{color:var(--green);}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
+.leg-dot{width:12px;height:12px;border-radius:3px;border:1px solid;}
+
+/* ── SAVE INDICATOR ── */
+.save-indicator{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+.save-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+/* ── DRAG HINT ── */
+.drag-hint{font-size:11px;color:var(--text3);text-align:center;padding:6px 0 2px;display:flex;align-items:center;justify-content:center;gap:5px;}
+
+/* ── NOTE DOT ── */
+.day-note-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);position:absolute;bottom:4px;right:4px;pointer-events:none;}
+
+/* ── MOBILE BOTTOM BAR (calendar apply) ── */
+.mob-bottom-bar{display:none;}
 @media(max-width:640px){
-  .g2,.g3,.mg3,.cmp-grid{grid-template-columns:1fr;}
-  .top-nav{flex-direction:column;gap:14px;align-items:flex-start;}
-  .footer{flex-direction:column;gap:10px;}
-  .fv{flex-direction:column;gap:6px;}
+  .mob-bottom-bar{
+    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top,var(--bg) 60%,transparent);
+    gap:8px;align-items:center;
+  }
+  .mob-bottom-bar .btn{flex:1;justify-content:center;padding:12px;font-size:13px;}
+  /* Hide inline apply strip on mobile since FAB handles it */
+  .apply-strip{display:none;}
 }
-@media print{.btn,.mode-bar,.emp-switcher,.inner-tabs,.toast{display:none!important;}}
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;animation:fi .2s ease;}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.6);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--text);}
+.modal-close{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:2px 8px;border-radius:6px;line-height:1;}
+.modal-close:hover{background:var(--bg3);color:var(--text);}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+
+/* ── NOTE MODAL ── */
+.note-modal-day{font-size:13px;color:var(--text2);margin-bottom:10px;}
+.note-textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Lexend',sans-serif;font-size:13px;padding:10px 12px;resize:vertical;min-height:90px;transition:border-color .2s;}
+.note-textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(210,153,34,.15);}
+.note-actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end;}
+
+/* ── PREV MONTH MODAL ── */
+.pv-emp-tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:9px;margin-bottom:14px;}
+.pv-emp-tab{flex:1;padding:7px 10px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-family:'Lexend',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.pv-emp-tab.bt.active{background:linear-gradient(135deg,var(--blue-dim),#1a3a6a);color:var(--day-text);}
+.pv-emp-tab.dl.active{background:linear-gradient(135deg,var(--night-bg),#2a1860);color:var(--purple);}
+.pv-emp-tab:hover:not(.active){background:var(--bg4);color:var(--text);}
+.pv-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.pv-dow{text-align:center;padding:4px 2px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text3);}
+.pv-dow.sun{color:var(--red);}.pv-dow.sat{color:var(--blue);}
+.pv-day{border-radius:7px;border:1px solid transparent;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 3px 3px;position:relative;}
+.pv-day.empty{pointer-events:none;}
+.pv-day.pv-sun .pv-num{color:var(--red);}
+.pv-day.pv-sat .pv-num{color:var(--blue);}
+.pv-day.s-day{background:var(--day-bg);border-color:var(--day-border);}
+.pv-day.s-night{background:var(--night-bg);border-color:var(--night-border);}
+.pv-day.s-gcn{background:var(--gcn-bg);border-color:var(--gcn-border);}
+.pv-day.s-gcd{background:var(--gcd-bg);border-color:var(--gcd-border);}
+.pv-day.s-leave{background:var(--leave-bg);border-color:var(--leave-border);}
+.pv-num{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:3px;}
+.pv-day.s-day .pv-num{color:var(--day-text);}
+.pv-day.s-night .pv-num{color:var(--night-text);}
+.pv-day.s-gcn .pv-num{color:var(--gcn-text);}
+.pv-day.s-gcd .pv-num{color:var(--gcd-text);}
+.pv-day.s-leave .pv-num{color:var(--leave-text);}
+.pv-icon{font-size:12px;line-height:1;}
+.pv-lunar{font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.pv-note-dot{width:4px;height:4px;border-radius:50%;background:var(--amber);position:absolute;bottom:3px;right:3px;}
+.pv-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;}
+.pv-note-list{margin-top:8px;}
+.pv-note-item{background:var(--bg3);border:1px solid var(--amber-bg);border-radius:8px;padding:8px 11px;margin-bottom:7px;font-size:12px;}
+.pv-note-day{font-size:10px;color:var(--amber);font-weight:600;margin-bottom:3px;}
+.pv-note-text{color:var(--text2);line-height:1.5;white-space:pre-wrap;}
+
+/* ── CAL HEADER BAR ── */
+.cal-header-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding:14px 18px;background:linear-gradient(135deg,#0a2010,#0d2a18);border:1px solid var(--green-border);border-radius:14px;}
+.cal-header-left{display:flex;align-items:center;gap:12px;}
+.cal-brand-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0d2a1a,#1e6641);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 15px rgba(63,185,80,.3);}
+.cal-header-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (≤768px)
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  body{padding:16px 12px;}
+  .mg3{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:1fr 1fr;}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE (≤640px)
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:640px){
+  /* ── Body & container ── */
+  body{padding:12px 10px 80px;}/* bottom padding for FAB */
+
+  /* ── Top nav: compact ── */
+  .top-nav{flex-direction:row;gap:8px;align-items:center;margin-bottom:16px;padding-bottom:14px;flex-wrap:wrap;}
+  .brand-icon{width:36px;height:36px;font-size:17px;border-radius:9px;}
+  .brand-name{font-size:16px;}
+  .brand-sub{font-size:10px;}
+  .nav-actions{gap:5px;margin-left:auto;}
+  /* Hide print button on mobile */
+  .nav-print{display:none;}
+  .btn{padding:7px 13px;font-size:12px;}
+  .sync-badge{font-size:10px;padding:3px 8px;}
+
+  /* ── Mode bar: icon-only on very small ── */
+  .mode-bar{margin-bottom:16px;gap:3px;padding:3px;}
+  .mode-btn{padding:9px 6px;font-size:11px;gap:4px;}
+  .mode-btn-label{display:none;}/* hide text labels in mode-bar, keep emoji */
+
+  /* ── Grids ── */
+  .g2,.cmp-grid{grid-template-columns:1fr;}
+  .g3{grid-template-columns:1fr 1fr;}/* 2-col for shift count inputs */
+  .mg3{grid-template-columns:1fr 1fr;}
+  .mg2{grid-template-columns:1fr 1fr;}
+
+  /* ── Hero card ── */
+  .hero{padding:16px 18px;margin-bottom:14px;}
+  .hero-val{font-size:26px;}
+  .hero-sub{font-size:11px;}
+
+  /* ── Metric cards ── */
+  .mc{padding:12px 13px;}
+  .mc-val{font-size:15px;}
+  .mc-lbl{font-size:10px;margin-bottom:5px;}
+
+  /* ── Section title ── */
+  .stitle{margin:16px 0 10px;font-size:10px;}
+
+  /* ── Form fields ── */
+  .field input{font-size:14px;padding:10px 12px;}/* bigger tap targets */
+  .field label{font-size:11px;}
+
+  /* ── Inner tabs: scrollable row ── */
+  .inner-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:3px;}
+  .inner-tabs::-webkit-scrollbar{display:none;}
+  .itab{white-space:nowrap;padding:8px 12px;font-size:11px;flex:0 0 auto;}
+
+  /* ── Footer ── */
+  .footer{flex-direction:column;gap:8px;padding:10px 14px;font-size:11px;}
+  .fv{flex-direction:row;flex-wrap:wrap;gap:10px;}
+
+  /* ── Toast: full width bottom ── */
+  .toast{bottom:16px;right:10px;left:10px;font-size:12px;padding:10px 16px;}
+
+  /* ── Calendar: cal header bar ── */
+  .cal-header-bar{padding:11px 13px;gap:8px;border-radius:11px;margin-bottom:14px;}
+  .cal-brand-icon{width:34px;height:34px;font-size:17px;}
+  .cal-header-bar .cal-header-left div:first-child+div div:first-child{font-size:13px;}
+  .cal-header-actions{width:100%;justify-content:flex-end;}
+  .cal-header-actions .btn{font-size:11px;padding:6px 11px;}
+
+  /* ── Calendar: employee tabs ── */
+  .cal-emp-tabs{margin-bottom:14px;}
+  .cal-emp-tab{font-size:12px;padding:8px 10px;}
+
+  /* ── Calendar: month nav ── */
+  .month-nav{margin-bottom:12px;}
+  .month-nav-title{font-size:15px;}
+  .nav-btn{padding:8px 14px;font-size:16px;min-width:44px;}/* bigger tap area */
+
+  /* ── Calendar: shift type selector → scrollable pill row ── */
+  .shift-bar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px;padding-bottom:4px;margin-bottom:12px;}
+  .shift-bar::-webkit-scrollbar{display:none;}
+  .shift-bar-label{display:none;}/* remove label on mobile to save space */
+  .stype-btn{flex:0 0 auto;padding:7px 12px;font-size:12px;white-space:nowrap;}
+
+  /* ── Calendar: grid & cells ── */
+  .cal-wrap{padding:10px 8px;border-radius:11px;margin-bottom:12px;}
+  .cal-grid{gap:3px;}
+  .day-cell{min-height:46px;padding:5px 2px 3px;border-radius:8px;}
+  .day-num{font-size:12px;margin-bottom:3px;}
+  .day-shift-icon{font-size:13px;}
+  .day-lunar{display:none;}
+  .day-note-dot{width:4px;height:4px;bottom:3px;right:3px;}
+
+  /* ── Calendar: drag hint ── */
+  .drag-hint{font-size:10px;}
+
+  /* ── Calendar: legend → 2 col grid ── */
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-bottom:12px;}
+  .leg-item{font-size:10px;}
+
+  /* ── Calendar: summary grid ── */
+  .summary-grid{grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
+  .sum-card{padding:8px 6px;}
+  .sum-icon{font-size:14px;}
+  .sum-count{font-size:18px;}
+  .sum-label{font-size:8px;}
+  .sum-hours{font-size:9px;}
+
+  /* ── Calendar: total row ── */
+  .total-row{padding:9px 11px;gap:7px;border-radius:8px;margin-bottom:10px;}
+  .tr-label{font-size:11px;}
+  .total-chip{font-size:11px;padding:3px 9px;}
+
+  /* ── Calendar: apply strip ── */
+  /* hidden on mobile, replaced by mob-bottom-bar */
+
+  /* ── Comparison ── */
+  .cmp-card{padding:14px;}
+  .cmp-card .cc-main{font-size:18px;}
+  .diff-badge{font-size:12px;padding:4px 10px;}
+
+  /* ── Modals: full-width on mobile ── */
+  .modal-overlay{padding:0;align-items:flex-end;}
+  .modal-box{border-radius:18px 18px 0 0;max-height:92vh;max-width:100%;}
+  .modal-header{padding:14px 16px;}
+  .modal-body{padding:14px 16px;}
+  .note-textarea{font-size:14px;}/* bigger for mobile keyboard */
+  .note-actions .btn{flex:1;justify-content:center;}/* full-width buttons */
+
+  /* ── Prev month modal: smaller cells ── */
+  .pv-cal-grid{gap:2px;}
+  .pv-day{min-height:38px;padding:4px 2px 2px;border-radius:6px;}
+  .pv-num{font-size:11px;}
+  .pv-icon{font-size:11px;}
+  .pv-lunar{display:none;}
+  .pv-summary{grid-template-columns:repeat(3,1fr);gap:5px;}
+
+  /* ── Tables: horizontal scroll ── */
+  .dt{font-size:12px;}
+  .dt th,.dt td{padding:7px 8px;}
+  .dt th:first-child,.dt td:first-child{font-size:12px;}
+
+  /* ── Bar rows ── */
+  .bar-hdr{font-size:12px;}
+
+  /* ── Row detail ── */
+  .rd{padding:9px 0;font-size:12px;}
+
+  /* ── Gauge section ── */
+  .gsec{padding:14px;border-radius:11px;}
+  .gsec-title{font-size:12px;}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (≤400px)
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:400px){
+  .summary-grid{grid-template-columns:repeat(3,1fr);}
+  .day-cell{min-height:42px;}
+  .mode-btn{padding:8px 4px;font-size:10px;}
+  .mg3{grid-template-columns:1fr 1fr;}
+  .hero-val{font-size:22px;}
+}
+
+@media print{.btn,.mode-bar,.emp-switcher,.inner-tabs,.toast,.cal-header-actions{display:none!important;}}
 </style>
 </head>
 <body>
@@ -214,11 +581,12 @@ svg.donut{transform:rotate(-90deg);}
     <div class="brand-icon">🏭</div>
     <div>
       <div class="brand-name">Hệ Thống Tính Lương</div>
-      <div class="brand-sub" id="topSub">Tháng 5/2025 · 2 nhân viên</div>
+      <div class="brand-sub" id="topSub">2 nhân viên</div>
     </div>
   </div>
   <div class="nav-actions">
-    <button class="btn btn-ghost" onclick="window.print()">🖨️ In</button>
+    <span class="sync-badge" id="syncBadge"><span class="sync-dot"></span>Đã đồng bộ</span>
+    <button class="btn btn-ghost nav-print" onclick="window.print()">🖨️ In</button>
     <button class="btn btn-danger" onclick="handleResetAll()">↺ Reset</button>
     <button class="btn btn-primary" id="saveBtn" onclick="handleSave()">💾 Lưu</button>
   </div>
@@ -226,41 +594,120 @@ svg.donut{transform:rotate(-90deg);}
 
 <!-- ── MODE BAR ── -->
 <div class="mode-bar">
-  <button class="mode-btn m0 active" onclick="switchMode(0,this)">👤 Bảo Trì</button>
-  <button class="mode-btn m1" onclick="switchMode(1,this)">👤 Đan Lưới</button>
-  <button class="mode-btn m2" onclick="switchMode(2,this)">⚖️ So sánh</button>
+  <button class="mode-btn mcal active" id="modeBtn0" onclick="switchMode(0,this)">📅 <span class="mode-btn-label">Lịch Ca</span></button>
+  <button class="mode-btn m0" id="modeBtn1" onclick="switchMode(1,this)">👤 <span class="mode-btn-label">Bảo Trì</span></button>
+  <button class="mode-btn m1" id="modeBtn2" onclick="switchMode(2,this)">👤 <span class="mode-btn-label">Đan Lưới</span></button>
+  <button class="mode-btn m2" id="modeBtn3" onclick="switchMode(3,this)">⚖️ <span class="mode-btn-label">So sánh</span></button>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
-<!-- VIEW 0: NHÂN VIÊN 1 (Bảng lương sản xuất) -->
+<!-- VIEW 0: LỊCH CA (Calendar) -->
 <!-- ═══════════════════════════════════════════════════════ -->
 <div class="view active" id="view0">
+
+  <!-- Cal header bar -->
+  <div class="cal-header-bar">
+    <div class="cal-header-left">
+      <div class="cal-brand-icon">📅</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;">Bộ Đếm Ca</div>
+        <div class="save-indicator" id="calSaveInd"><div class="save-dot"></div><span id="calSaveTxt">Tự động lưu & đồng bộ</span></div>
+      </div>
+    </div>
+    <div class="cal-header-actions">
+      <button class="btn btn-ghost" style="font-size:12px;" onclick="calShowPrevMonth()">📊 Theo dõi tháng</button>
+      <button class="btn btn-success" style="font-size:12px;" onclick="calApply()">↗ Áp dụng vào lương</button>
+    </div>
+  </div>
+
+  <!-- Employee tabs -->
+  <div class="cal-emp-tabs">
+    <button class="cal-emp-tab bt active" id="calTab0" onclick="calSwitchEmp(0)">👤 Bảo Trì</button>
+    <button class="cal-emp-tab dl" id="calTab1" onclick="calSwitchEmp(1)">👤 Đan Lưới</button>
+  </div>
+
+  <!-- Month nav -->
+  <div class="month-nav">
+    <button class="nav-btn" onclick="calChangeMonth(-1)">‹ Trước</button>
+    <div class="month-nav-title" id="calMonthTitle">Tháng 6<span class="year">2026</span></div>
+    <button class="nav-btn" onclick="calChangeMonth(+1)">Sau ›</button>
+  </div>
+
+  <!-- Shift type selector -->
+  <div class="shift-bar">
+    <span class="shift-bar-label">Loại ca:</span>
+    <button class="stype-btn s-day selected" id="stype_day" onclick="calSelectType('day')">☀️ Ca ngày</button>
+    <button class="stype-btn s-night" id="stype_night" onclick="calSelectType('night')">🌙 Ca đêm</button>
+    <button class="stype-btn s-gcn" id="stype_gcn" onclick="calSelectType('gcn')">⚡ Giãn ca ngày</button>
+    <button class="stype-btn s-gcd" id="stype_gcd" onclick="calSelectType('gcd')">⚡ Giãn ca đêm</button>
+    <button class="stype-btn s-leave" id="stype_leave" onclick="calSelectType('leave')">🌿 Nghỉ phép</button>
+  </div>
+
+  <div class="drag-hint">💡 Nhấn 1 ngày hoặc <strong style="color:var(--text)">kéo qua nhiều ngày</strong> để đánh dấu · <strong style="color:var(--amber)">Nhấn phải</strong> để ghi chú</div>
+
+  <!-- Calendar grid -->
+  <div class="cal-wrap">
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--day-bg);border-color:var(--day-border);"></div>☀️ Ca ngày (8h + 4h OT)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--night-bg);border-color:var(--night-border);"></div>🌙 Ca đêm (8h + 4h OT)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--gcn-bg);border-color:var(--gcn-border);"></div>⚡ Giãn ca ngày (12h)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--gcd-bg);border-color:var(--gcd-border);"></div>⚡ Giãn ca đêm (12h)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--leave-bg);border-color:var(--leave-border);"></div>🌿 Nghỉ phép (12h)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--bg3);border-color:var(--border2);"></div>● Hôm nay</div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-grid" id="calSummaryGrid"></div>
+
+  <!-- Total row -->
+  <div class="total-row" id="calTotalRow">
+    <span class="tr-label">Tổng tháng này:</span>
+  </div>
+
+  <!-- Apply strip (desktop) -->
+  <div class="apply-strip">
+    <div class="as-label">Nhấn <strong>↗ Áp dụng</strong> để điền số ca vào bảng tính lương — dữ liệu cập nhật <strong>real-time</strong></div>
+    <button class="btn btn-success" onclick="calApply()">↗ Áp dụng vào bảng lương</button>
+  </div>
+
+</div><!-- /view0 -->
+
+<!-- ── MOBILE BOTTOM BAR (calendar view) ── -->
+<div class="mob-bottom-bar" id="mobBottomBar">
+  <button class="btn btn-ghost" style="font-size:12px;" onclick="calShowPrevMonth()">📊 Theo dõi</button>
+  <button class="btn btn-success" onclick="calApply()">↗ Áp dụng vào lương</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- VIEW 1: NHÂN VIÊN 1 (Bảo Trì) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="view" id="view1">
   <div class="inner-tabs" id="itabs0">
     <button class="itab active" onclick="switchInner(0,0,this)">📝 Nhập liệu</button>
     <button class="itab" onclick="switchInner(0,1,this)">📊 Tổng hợp</button>
     <button class="itab" onclick="switchInner(0,2,this)">⏱️ Chi tiết giờ</button>
     <button class="itab" onclick="switchInner(0,3,this)">📐 Đo lường</button>
   </div>
-
-  <!-- IP0-0: NHẬP LIỆU -->
   <div class="ipanel active" id="ip0-0">
     <div class="stitle e0">Thông tin nhân viên</div>
     <div class="g2" style="margin-bottom:13px;">
       <div class="field"><label>Họ tên</label><input type="text" id="e0_name" value="Nguyễn Văn A" oninput="recalc(0)"/></div>
       <div class="field"><label>Bộ phận</label><input type="text" id="e0_dept" value="Bảo Trì" oninput="recalc(0)"/></div>
     </div>
-    <div class="g3">
-      <div class="field"><label>Tháng</label><input type="number" id="e0_month" value="5" min="1" max="12" oninput="recalc(0)"/></div>
-      <div class="field"><label>Năm</label><input type="number" id="e0_year" value="2025" oninput="recalc(0)"/></div>
+    <div class="g2">
       <div class="field"><label>Đơn giá giờ cơ bản (đ/h)</label><input type="number" id="e0_rate" value="35433" oninput="recalc(0)"/><span class="field-hint">Sheet Đơn giá giờ: 35,433đ</span></div>
     </div>
     <div class="stitle e0">Số ngày làm việc</div>
     <div class="g3">
-      <div class="field"><label>Ca ngày (ngày)</label><input type="number" id="e0_days" value="15" min="0" oninput="recalc(0)"/><span class="field-hint">8h/ca → 120h</span></div>
-      <div class="field"><label>Ca đêm (ngày)</label><input type="number" id="e0_nights" value="8" min="0" oninput="recalc(0)"/><span class="field-hint">8h/ca → 64h</span></div>
-      <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e0_gcn" value="3" min="0" oninput="recalc(0)"/><span class="field-hint">12h/ca → 36h</span></div>
-      <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e0_gcd" value="0" min="0" oninput="recalc(0)"/></div>
-      <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e0_leave" value="3" min="0" oninput="recalc(0)"/><span class="field-hint">12h/ngày</span></div>
+      <div class="field"><label>Ca ngày (ngày)</label><input type="number" id="e0_days" value="15" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_days_hint">8h/ca → 120h</span></div>
+      <div class="field"><label>Ca đêm (ngày)</label><input type="number" id="e0_nights" value="8" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_nights_hint">8h/ca → 64h</span></div>
+      <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e0_gcn" value="3" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_gcn_hint">12h/ca → 36h</span></div>
+      <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e0_gcd" value="0" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_gcd_hint">12h/ca → 0h</span></div>
+      <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e0_leave" value="3" min="0" oninput="recalc(0)"/><span class="field-hint" id="e0_leave_hint">12h/ngày → 36h</span></div>
     </div>
     <div class="stitle e0">Phụ cấp</div>
     <div class="g3">
@@ -279,8 +726,6 @@ svg.donut{transform:rotate(-90deg);}
       <div class="field"><label>Thuế TNCN (đ)</label><input type="number" id="e0_tncn" value="66209" oninput="recalc(0)"/></div>
     </div>
   </div>
-
-  <!-- IP0-1: TỔNG HỢP -->
   <div class="ipanel" id="ip0-1">
     <div class="hero e0">
       <div class="hero-lbl">💵 Lương thực nhận — <span id="e0_heroName">Nguyễn Văn A</span></div>
@@ -295,45 +740,30 @@ svg.donut{transform:rotate(-90deg);}
       <div class="mc blue"><div class="mc-lbl">BHXH (10.5%)</div><div class="mc-val" id="e0_bhxhkt">0đ</div></div>
       <div class="mc"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" id="e0_totalh">0h</div></div>
     </div>
-    <div class="stitle e0">Cơ cấu lương</div>
-    <div id="e0_bars"></div>
-    <div class="stitle e0">Chi tiết khấu trừ</div>
-    <div id="e0_deduct"></div>
+    <div class="stitle e0">Cơ cấu lương</div><div id="e0_bars"></div>
+    <div class="stitle e0">Chi tiết khấu trừ</div><div id="e0_deduct"></div>
   </div>
-
-  <!-- IP0-2: CHI TIẾT GIỜ -->
   <div class="ipanel" id="ip0-2">
     <div class="stitle e0">Hệ số & Giờ làm</div>
     <div style="overflow-x:auto;">
-      <table class="dt"><thead><tr>
-        <th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th>
-      </tr></thead><tbody id="e0_htable"></tbody></table>
+      <table class="dt"><thead><tr><th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th></tr></thead><tbody id="e0_htable"></tbody></table>
     </div>
-    <div class="stitle e0" style="margin-top:18px;">Chi tiết phụ cấp</div>
-    <div id="e0_pcdetail"></div>
+    <div class="stitle e0" style="margin-top:18px;">Chi tiết phụ cấp</div><div id="e0_pcdetail"></div>
   </div>
-
-  <!-- IP0-3: ĐO LƯỜNG -->
   <div class="ipanel" id="ip0-3">
     <div class="stitle e0">Biểu đồ tỷ lệ</div>
     <div class="mg2" style="margin-bottom:16px;">
       <div class="mc" style="text-align:center;padding:18px;">
         <div class="mc-lbl" style="margin-bottom:12px;">Lương giờ / Tổng lương</div>
         <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
-          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
-            <circle class="donut-track" cx="60" cy="60" r="50"/>
-            <circle class="donut-progress" id="e0_d1" cx="60" cy="60" r="50" stroke="#388bfd" stroke-dasharray="314" stroke-dashoffset="314"/>
-          </svg>
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120"><circle class="donut-track" cx="60" cy="60" r="50"/><circle class="donut-progress" id="e0_d1" cx="60" cy="60" r="50" stroke="#388bfd" stroke-dasharray="314" stroke-dashoffset="314"/></svg>
           <div class="donut-lbl"><div class="donut-val" id="e0_d1v">0%</div><div class="donut-unit">giờ làm</div></div>
         </div>
       </div>
       <div class="mc" style="text-align:center;padding:18px;">
         <div class="mc-lbl" style="margin-bottom:12px;">Thực nhận / Tổng lương</div>
         <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
-          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
-            <circle class="donut-track" cx="60" cy="60" r="50"/>
-            <circle class="donut-progress" id="e0_d2" cx="60" cy="60" r="50" stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/>
-          </svg>
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120"><circle class="donut-track" cx="60" cy="60" r="50"/><circle class="donut-progress" id="e0_d2" cx="60" cy="60" r="50" stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/></svg>
           <div class="donut-lbl"><div class="donut-val" id="e0_d2v">0%</div><div class="donut-unit">thực nhận</div></div>
         </div>
       </div>
@@ -341,57 +771,47 @@ svg.donut{transform:rotate(-90deg);}
     <div class="gsec">
       <div class="gsec-title">⚖️ So sánh với mức lương tham chiếu</div>
       <div class="field" style="margin-bottom:12px;"><label>Mức tham chiếu (đ)</label><input type="number" id="e0_ref" value="20000000" oninput="updateMeasure(0)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
-      <div class="bar-row">
-        <div class="bar-hdr"><span>Thực nhận vs tham chiếu</span><span class="badge bd-blue" id="e0_refpct">0%</span></div>
-        <div class="bar-track" style="height:11px;"><div class="bar-fill" id="e0_refbar" style="background:linear-gradient(90deg,#1c4a8a,#388bfd);width:0%;"></div></div>
-      </div>
+      <div class="bar-row"><div class="bar-hdr"><span>Thực nhận vs tham chiếu</span><span class="badge bd-blue" id="e0_refpct">0%</span></div><div class="bar-track" style="height:11px;"><div class="bar-fill" id="e0_refbar" style="background:linear-gradient(90deg,#1c4a8a,#388bfd);width:0%;"></div></div></div>
       <div class="mg2" style="margin-top:12px;">
         <div class="mc blue" style="padding:12px 14px;"><div class="mc-lbl">Chênh lệch</div><div class="mc-val" id="e0_refdiff" style="font-size:15px;">0đ</div></div>
         <div class="mc" style="padding:12px 14px;"><div class="mc-lbl">Giá trị bình quân/giờ</div><div class="mc-val" id="e0_perh" style="font-size:15px;">0đ</div></div>
       </div>
     </div>
-    <div class="gsec">
-      <div class="gsec-title">⏱️ Phân tích giờ làm</div>
-      <div id="e0_hbars"></div>
-    </div>
+    <div class="gsec"><div class="gsec-title">⏱️ Phân tích giờ làm</div><div id="e0_hbars"></div></div>
     <div class="gsec">
       <div class="gsec-title">🎯 Mô phỏng tăng lương</div>
       <div class="field" style="margin-bottom:10px;"><label>Mức lương mục tiêu (đ)</label><input type="number" id="e0_target" value="20000000" oninput="updateSim(0)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
       <div id="e0_sim" style="font-size:13px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:14px;line-height:1.9;"></div>
     </div>
   </div>
-</div><!-- /view0 -->
+</div><!-- /view1 -->
 
 <!-- ═══════════════════════════════════════════════════════ -->
-<!-- VIEW 1: NHÂN VIÊN 2 (Đan lưới) -->
+<!-- VIEW 2: NHÂN VIÊN 2 (Đan Lưới) -->
 <!-- ═══════════════════════════════════════════════════════ -->
-<div class="view" id="view1">
+<div class="view" id="view2">
   <div class="inner-tabs" id="itabs1">
     <button class="itab active" onclick="switchInner(1,0,this)">📝 Nhập liệu</button>
     <button class="itab" onclick="switchInner(1,1,this)">📊 Tổng hợp</button>
     <button class="itab" onclick="switchInner(1,2,this)">⏱️ Chi tiết giờ</button>
     <button class="itab" onclick="switchInner(1,3,this)">📐 Đo lường</button>
   </div>
-
-  <!-- IP1-0: NHẬP LIỆU -->
   <div class="ipanel active" id="ip1-0">
     <div class="stitle e1">Thông tin nhân viên</div>
     <div class="g2" style="margin-bottom:13px;">
       <div class="field"><label>Họ tên</label><input type="text" id="e1_name" value="Nguyễn Thị B" oninput="recalc(1)"/></div>
       <div class="field"><label>Bộ phận</label><input type="text" id="e1_dept" value="Đan Lưới" oninput="recalc(1)"/></div>
     </div>
-    <div class="g3">
-      <div class="field"><label>Tháng</label><input type="number" id="e1_month" value="5" min="1" max="12" oninput="recalc(1)"/></div>
-      <div class="field"><label>Năm</label><input type="number" id="e1_year" value="2025" oninput="recalc(1)"/></div>
+    <div class="g2">
       <div class="field"><label>Đơn giá giờ cơ bản (đ/h)</label><input type="number" id="e1_rate" value="25962" oninput="recalc(1)"/><span class="field-hint">Sheet Đơn giá giờ: 25,962đ</span></div>
     </div>
     <div class="stitle e1">Số ngày làm việc</div>
     <div class="g3">
-      <div class="field"><label>Ca ngày (ngày)</label><input type="number" id="e1_days" value="11" min="0" oninput="recalc(1)"/><span class="field-hint">8h/ca → 88h</span></div>
-      <div class="field"><label>Ca đêm (ngày)</label><input type="number" id="e1_nights" value="12" min="0" oninput="recalc(1)"/><span class="field-hint">8h/ca → 96h</span></div>
-      <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e1_gcn" value="0" min="0" oninput="recalc(1)"/></div>
-      <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e1_gcd" value="1" min="0" oninput="recalc(1)"/><span class="field-hint">12h/ca → 12h</span></div>
-      <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e1_leave" value="3" min="0" oninput="recalc(1)"/><span class="field-hint">12h/ngày</span></div>
+      <div class="field"><label>Ca ngày (ngày)</label><input type="number" id="e1_days" value="11" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_days_hint">8h/ca → 88h</span></div>
+      <div class="field"><label>Ca đêm (ngày)</label><input type="number" id="e1_nights" value="12" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_nights_hint">8h/ca → 96h</span></div>
+      <div class="field"><label>Giãn ca ngày (ngày)</label><input type="number" id="e1_gcn" value="0" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_gcn_hint">12h/ca → 0h</span></div>
+      <div class="field"><label>Giãn ca đêm (ngày)</label><input type="number" id="e1_gcd" value="1" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_gcd_hint">12h/ca → 12h</span></div>
+      <div class="field"><label>Nghỉ có phép (ngày)</label><input type="number" id="e1_leave" value="3" min="0" oninput="recalc(1)"/><span class="field-hint" id="e1_leave_hint">12h/ngày → 36h</span></div>
     </div>
     <div class="stitle e1">Phụ cấp</div>
     <div class="g3">
@@ -410,8 +830,6 @@ svg.donut{transform:rotate(-90deg);}
       <div class="field"><label>Thuế TNCN (đ)</label><input type="number" id="e1_tncn" value="0" oninput="recalc(1)"/></div>
     </div>
   </div>
-
-  <!-- IP1-1: TỔNG HỢP -->
   <div class="ipanel" id="ip1-1">
     <div class="hero e1">
       <div class="hero-lbl">💵 Lương thực nhận — <span id="e1_heroName">Nguyễn Thị B</span></div>
@@ -426,45 +844,30 @@ svg.donut{transform:rotate(-90deg);}
       <div class="mc blue"><div class="mc-lbl">BHXH (10.5%)</div><div class="mc-val" id="e1_bhxhkt">0đ</div></div>
       <div class="mc"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" id="e1_totalh">0h</div></div>
     </div>
-    <div class="stitle e1">Cơ cấu lương</div>
-    <div id="e1_bars"></div>
-    <div class="stitle e1">Chi tiết khấu trừ</div>
-    <div id="e1_deduct"></div>
+    <div class="stitle e1">Cơ cấu lương</div><div id="e1_bars"></div>
+    <div class="stitle e1">Chi tiết khấu trừ</div><div id="e1_deduct"></div>
   </div>
-
-  <!-- IP1-2: CHI TIẾT GIỜ -->
   <div class="ipanel" id="ip1-2">
     <div class="stitle e1">Hệ số & Giờ làm</div>
     <div style="overflow-x:auto;">
-      <table class="dt"><thead><tr>
-        <th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th>
-      </tr></thead><tbody id="e1_htable"></tbody></table>
+      <table class="dt"><thead><tr><th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th></tr></thead><tbody id="e1_htable"></tbody></table>
     </div>
-    <div class="stitle e1" style="margin-top:18px;">Chi tiết phụ cấp</div>
-    <div id="e1_pcdetail"></div>
+    <div class="stitle e1" style="margin-top:18px;">Chi tiết phụ cấp</div><div id="e1_pcdetail"></div>
   </div>
-
-  <!-- IP1-3: ĐO LƯỜNG -->
   <div class="ipanel" id="ip1-3">
     <div class="stitle e1">Biểu đồ tỷ lệ</div>
     <div class="mg2" style="margin-bottom:16px;">
       <div class="mc" style="text-align:center;padding:18px;">
         <div class="mc-lbl" style="margin-bottom:12px;">Lương giờ / Tổng lương</div>
         <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
-          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
-            <circle class="donut-track" cx="60" cy="60" r="50"/>
-            <circle class="donut-progress" id="e1_d1" cx="60" cy="60" r="50" stroke="#bc8cff" stroke-dasharray="314" stroke-dashoffset="314"/>
-          </svg>
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120"><circle class="donut-track" cx="60" cy="60" r="50"/><circle class="donut-progress" id="e1_d1" cx="60" cy="60" r="50" stroke="#bc8cff" stroke-dasharray="314" stroke-dashoffset="314"/></svg>
           <div class="donut-lbl"><div class="donut-val" id="e1_d1v">0%</div><div class="donut-unit">giờ làm</div></div>
         </div>
       </div>
       <div class="mc" style="text-align:center;padding:18px;">
         <div class="mc-lbl" style="margin-bottom:12px;">Thực nhận / Tổng lương</div>
         <div style="position:relative;width:110px;height:110px;margin:0 auto 8px;">
-          <svg width="110" height="110" class="donut" viewBox="0 0 120 120">
-            <circle class="donut-track" cx="60" cy="60" r="50"/>
-            <circle class="donut-progress" id="e1_d2" cx="60" cy="60" r="50" stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/>
-          </svg>
+          <svg width="110" height="110" class="donut" viewBox="0 0 120 120"><circle class="donut-track" cx="60" cy="60" r="50"/><circle class="donut-progress" id="e1_d2" cx="60" cy="60" r="50" stroke="#3fb950" stroke-dasharray="314" stroke-dashoffset="314"/></svg>
           <div class="donut-lbl"><div class="donut-val" id="e1_d2v">0%</div><div class="donut-unit">thực nhận</div></div>
         </div>
       </div>
@@ -472,103 +875,146 @@ svg.donut{transform:rotate(-90deg);}
     <div class="gsec">
       <div class="gsec-title">⚖️ So sánh với mức lương tham chiếu</div>
       <div class="field" style="margin-bottom:12px;"><label>Mức tham chiếu (đ)</label><input type="number" id="e1_ref" value="15000000" oninput="updateMeasure(1)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
-      <div class="bar-row">
-        <div class="bar-hdr"><span>Thực nhận vs tham chiếu</span><span class="badge bd-purple" id="e1_refpct">0%</span></div>
-        <div class="bar-track" style="height:11px;"><div class="bar-fill" id="e1_refbar" style="background:linear-gradient(90deg,#2a1060,#9b59f8);width:0%;"></div></div>
-      </div>
+      <div class="bar-row"><div class="bar-hdr"><span>Thực nhận vs tham chiếu</span><span class="badge bd-purple" id="e1_refpct">0%</span></div><div class="bar-track" style="height:11px;"><div class="bar-fill" id="e1_refbar" style="background:linear-gradient(90deg,#2a1060,#9b59f8);width:0%;"></div></div></div>
       <div class="mg2" style="margin-top:12px;">
         <div class="mc purple" style="padding:12px 14px;"><div class="mc-lbl">Chênh lệch</div><div class="mc-val" id="e1_refdiff" style="font-size:15px;">0đ</div></div>
         <div class="mc" style="padding:12px 14px;"><div class="mc-lbl">Giá trị bình quân/giờ</div><div class="mc-val" id="e1_perh" style="font-size:15px;">0đ</div></div>
       </div>
     </div>
-    <div class="gsec">
-      <div class="gsec-title">⏱️ Phân tích giờ làm</div>
-      <div id="e1_hbars"></div>
-    </div>
+    <div class="gsec"><div class="gsec-title">⏱️ Phân tích giờ làm</div><div id="e1_hbars"></div></div>
     <div class="gsec">
       <div class="gsec-title">🎯 Mô phỏng tăng lương</div>
       <div class="field" style="margin-bottom:10px;"><label>Mức lương mục tiêu (đ)</label><input type="number" id="e1_target" value="15000000" oninput="updateSim(1)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;width:100%;"/></div>
       <div id="e1_sim" style="font-size:13px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:14px;line-height:1.9;"></div>
     </div>
   </div>
-</div><!-- /view1 -->
+</div><!-- /view2 -->
 
 <!-- ═══════════════════════════════════════════════════════ -->
-<!-- VIEW 2: SO SÁNH -->
+<!-- VIEW 3: SO SÁNH -->
 <!-- ═══════════════════════════════════════════════════════ -->
-<div class="view" id="view2">
+<div class="view" id="view3">
   <div class="stitle cmp">Tổng quan song song</div>
   <div class="cmp-grid">
-    <div class="cmp-card e0">
-      <div class="cc-name">👤 <span id="cmp_n0">Nguyễn Văn A</span> · <span id="cmp_d0">Bảo Trì</span></div>
-      <div class="cc-main" id="cmp_tn0">0đ</div>
-      <div class="cc-sub">Lương thực nhận</div>
-    </div>
-    <div class="cmp-card e1">
-      <div class="cc-name">👤 <span id="cmp_n1">Nguyễn Thị B</span> · <span id="cmp_d1">Đan lưới</span></div>
-      <div class="cc-main" id="cmp_tn1">0đ</div>
-      <div class="cc-sub">Lương thực nhận</div>
-    </div>
+    <div class="cmp-card e0"><div class="cc-name">👤 <span id="cmp_n0">Nguyễn Văn A</span> · <span id="cmp_d0">Bảo Trì</span></div><div class="cc-main" id="cmp_tn0">0đ</div><div class="cc-sub">Lương thực nhận</div></div>
+    <div class="cmp-card e1"><div class="cc-name">👤 <span id="cmp_n1">Nguyễn Thị B</span> · <span id="cmp_d1">Đan lưới</span></div><div class="cc-main" id="cmp_tn1">0đ</div><div class="cc-sub">Lương thực nhận</div></div>
   </div>
-
   <div style="margin:18px 0;padding:16px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
     <div style="font-size:13px;color:var(--text2);">Chênh lệch lương thực nhận</div>
     <div id="cmp_diff" class="diff-badge pos">+0đ</div>
   </div>
-
-  <!-- VS bars -->
   <div id="cmp_vsbars"></div>
-
   <div class="stitle cmp" style="margin-top:22px;">So sánh chi tiết</div>
   <div style="overflow-x:auto;">
     <table class="dt" id="cmpTable">
-      <thead><tr>
-        <th>Chỉ tiêu</th>
-        <th style="color:var(--e0);" id="cmpH0">NV 1</th>
-        <th style="color:var(--e1);" id="cmpH1">NV 2</th>
-        <th>Chênh lệch</th>
-      </tr></thead>
+      <thead><tr><th>Chỉ tiêu</th><th style="color:var(--e0);" id="cmpH0">Bảo Trì</th><th style="color:var(--e1);" id="cmpH1">Đan Lưới</th><th>Chênh lệch</th></tr></thead>
       <tbody id="cmpBody"></tbody>
     </table>
   </div>
-
   <div class="stitle cmp" style="margin-top:22px;">Giờ làm theo loại ca</div>
   <div id="cmp_hours"></div>
-
-  <div class="stitle cmp" style="margin-top:22px;">Phân tích tổng quỹ lương</div>
-  <div class="mg3" id="cmp_summary"></div>
-</div><!-- /view2 -->
+</div><!-- /view3 -->
 
 <!-- ── FOOTER ── -->
 <div class="footer">
-  <span id="footerTxt">Hệ thống tính lương · Tháng 5/2025</span>
+  <span id="footerTxt">Hệ thống tính lương</span>
   <div class="fv">
-    <span style="color:var(--e0);">NV1: <strong id="f_tn0">0đ</strong></span>
-    <span style="color:var(--e1);">NV2: <strong id="f_tn1">0đ</strong></span>
-    <span style="color:var(--green);font-weight:600;">Tổng quỹ: <span id="f_total">0đ</span></span>
+    <span style="color:var(--e0);">Bảo Trì: <strong id="f_tn0">0đ</strong></span>
+    <span style="color:var(--e1);">Đan Lưới: <strong id="f_tn1">0đ</strong></span>
   </div>
 </div>
 </div><!-- /container -->
 
+<!-- ── NOTE MODAL ── -->
+<div class="modal-overlay" id="noteModal" style="display:none;" onclick="if(event.target===this)closeNoteModal()">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">📝 Ghi chú ngày</div>
+      <button class="modal-close" onclick="closeNoteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="note-modal-day" id="noteModalDay"></div>
+      <textarea class="note-textarea" id="noteTextarea" placeholder="Nhập ghi chú cho ngày này..."></textarea>
+      <div class="note-actions">
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="deleteNote()">🗑 Xóa ghi chú</button>
+        <button class="btn btn-primary" style="font-size:12px;" onclick="saveNote()">💾 Lưu ghi chú</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PREV MONTH MODAL ── -->
+<div class="modal-overlay" id="prevMonthModal" style="display:none;" onclick="if(event.target===this)closePrevMonthModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="pvModalTitle">📊 Theo dõi tháng trước</div>
+      <button class="modal-close" onclick="closePrevMonthModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="pv-emp-tabs">
+        <button class="pv-emp-tab bt active" id="pvTab0" onclick="pvSwitchEmp(0)">👤 Bảo Trì</button>
+        <button class="pv-emp-tab dl" id="pvTab1" onclick="pvSwitchEmp(1)">👤 Đan Lưới</button>
+      </div>
+      <div class="pv-cal-grid" id="pvCalGrid"></div>
+      <div class="pv-summary" id="pvSummary"></div>
+      <div class="total-row" id="pvTotalRow"></div>
+      <div id="pvNoteList"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">✅ Đã lưu thành công!</div>
 
 <script>
+// ════════════════════════════════════════════════════════════════
+// SHARED UTILITIES
+// ════════════════════════════════════════════════════════════════
 const FMT = v => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(v||0);
 const $ = id => document.getElementById(id);
 const Nv = id => Number($(id)?.value)||0;
+
+function showToast(msg, type='success') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.background = type==='sync' ? 'var(--blue-dim)' : 'var(--green-bg)';
+  t.style.borderColor = type==='sync' ? 'var(--blue)' : 'var(--green)';
+  t.style.color = type==='sync' ? 'var(--accent)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function flashSyncBadge(msg='Đang đồng bộ...') {
+  const b = $('syncBadge');
+  b.classList.add('syncing');
+  b.querySelector('.sync-dot').style.background = 'var(--accent)';
+  b.childNodes[1].textContent = msg;
+  setTimeout(()=>{
+    b.classList.remove('syncing');
+    b.querySelector('.sync-dot').style.background = 'var(--green)';
+    b.childNodes[1].textContent = 'Đã đồng bộ';
+  }, 1200);
+}
+
+// ════════════════════════════════════════════════════════════════
+// STORAGE KEYS
+// ════════════════════════════════════════════════════════════════
+const LUONG_KEY = 'luong_data_v1';   // salary data
+const CAL_KEY   = 'demca_v2';        // calendar data
+
+// ════════════════════════════════════════════════════════════════
+// SALARY MODULE
+// ════════════════════════════════════════════════════════════════
 let activeMode = 0;
 const innerState = {0:0, 1:0};
 
-// ── DEFAULTS ──────────────────────────────────────────────────────
 const DEF = {
-  0:{name:'Nguyễn Văn A',dept:'Bảo Trì',month:5,year:2025,rate:35433,days:15,nights:8,gcn:3,gcd:0,leave:3,tn3:300000,dl:200000,cc:500000,tn6:500000,tnhiem:0,vt:500000,bhxh:6000000,cl:0,cd:30000,tncn:66209},
-  1:{name:'Nguyễn Thị B',dept:'Đan Lưới',month:5,year:2025,rate:25962,days:11,nights:12,gcn:0,gcd:1,leave:3,tn3:300000,dl:200000,cc:500000,tn6:700000,tnhiem:0,vt:700000,bhxh:5400000,cl:0,cd:27000,tncn:0},
+  0:{name:'Nguyễn Văn A',dept:'Bảo Trì',rate:35433,days:15,nights:8,gcn:3,gcd:0,leave:3,tn3:300000,dl:200000,cc:500000,tn6:500000,tnhiem:0,vt:500000,bhxh:6000000,cl:0,cd:30000,tncn:66209},
+  1:{name:'Nguyễn Thị B',dept:'Đan Lưới',rate:25962,days:11,nights:12,gcn:0,gcd:1,leave:3,tn3:300000,dl:200000,cc:500000,tn6:700000,tnhiem:0,vt:700000,bhxh:5400000,cl:0,cd:27000,tncn:0},
 };
 
-// ── CALC ──────────────────────────────────────────────────────────
 function getCalc(e) {
   const r = Nv(`e${e}_rate`);
-  const hD=Nv(`e${e}_days`)*8,  hN=Nv(`e${e}_nights`)*8;
+  const hD=Nv(`e${e}_days`)*8, hN=Nv(`e${e}_nights`)*8;
   const hOD=Nv(`e${e}_days`)*4, hON=Nv(`e${e}_nights`)*4;
   const hGN=Nv(`e${e}_gcn`)*12, hGE=Nv(`e${e}_gcd`)*12;
   const hLv=Nv(`e${e}_leave`)*12;
@@ -584,24 +1030,34 @@ function getCalc(e) {
   return {r,hD,hN,hOD,hON,hGN,hGE,hLv,lD,lN,lOD,lON,lGN,lGE,lLv,gio,pc,bhxh,kt,tong,tn,totalH};
 }
 
-// ── RECALC ────────────────────────────────────────────────────────
+function updateHints(e) {
+  const p=`e${e}_`;
+  const days=Number($(p+'days')?.value)||0, nights=Number($(p+'nights')?.value)||0;
+  const gcn=Number($(p+'gcn')?.value)||0, gcd=Number($(p+'gcd')?.value)||0;
+  const leave=Number($(p+'leave')?.value)||0;
+  const set=(id,txt)=>{const el=$(id);if(el)el.textContent=txt;};
+  set(p+'days_hint',`8h/ca → ${days*8}h`);
+  set(p+'nights_hint',`8h/ca → ${nights*8}h`);
+  set(p+'gcn_hint',`12h/ca → ${gcn*12}h`);
+  set(p+'gcd_hint',`12h/ca → ${gcd*12}h`);
+  set(p+'leave_hint',`12h/ngày → ${leave*12}h`);
+}
+
 function recalc(e) {
-  const c = getCalc(e);
-  const pfx = `e${e}_`;
-  const name = $(pfx+'name')?.value||'';
-  const dept = $(pfx+'dept')?.value||'';
-  const mo = $(pfx+'month')?.value||'';
+  updateHints(e);
+  const c=getCalc(e);
+  const pfx=`e${e}_`;
+  const name=$(pfx+'name')?.value||'';
 
-  $(pfx+'heroName').textContent = name;
-  $(pfx+'thucnhan').textContent = FMT(c.tn);
-  $(pfx+'tonggio').textContent  = FMT(c.gio);
-  $(pfx+'tongpc').textContent   = FMT(c.pc);
-  $(pfx+'tongluong').textContent= FMT(c.tong);
-  $(pfx+'tongkt').textContent   = FMT(c.kt);
-  $(pfx+'bhxhkt').textContent   = FMT(c.bhxh);
-  $(pfx+'totalh').textContent   = c.totalH+'h';
+  $(pfx+'heroName').textContent=name;
+  $(pfx+'thucnhan').textContent=FMT(c.tn);
+  $(pfx+'tonggio').textContent=FMT(c.gio);
+  $(pfx+'tongpc').textContent=FMT(c.pc);
+  $(pfx+'tongluong').textContent=FMT(c.tong);
+  $(pfx+'tongkt').textContent=FMT(c.kt);
+  $(pfx+'bhxhkt').textContent=FMT(c.bhxh);
+  $(pfx+'totalh').textContent=c.totalH+'h';
 
-  // bars
   const bars=[
     {l:'Lương theo giờ',v:c.gio,cls:'bd-blue',col:'#388bfd'},
     {l:'Tổng phụ cấp',v:c.pc,cls:'bd-green',col:'#3fb950'},
@@ -621,7 +1077,6 @@ function recalc(e) {
     ['Tổng khấu trừ',c.kt,'s'],
   ].map(([l,v,s])=>`<div class="rd ${s||''}"><span class="rl">${l}</span><span class="rr" style="color:var(--red);">${FMT(v)}</span></div>`).join('');
 
-  // hours table
   const rows=[
     ['Ca ngày thường','bd-blue',1.0,Nv(pfx+'days'),8,c.hD,c.lD],
     ['Ca đêm','bd-amber',1.3,Nv(pfx+'nights'),8,c.hN,c.lN],
@@ -642,11 +1097,9 @@ function recalc(e) {
   renderComparison();
 }
 
-// ── MEASURE ───────────────────────────────────────────────────────
 function updateMeasure(e) {
   const c=getCalc(e);
   const pfx=`e${e}_`;
-  const color=e===0?'#388bfd':'#bc8cff';
   const p1=c.tong>0?c.gio/c.tong:0, o1=314-(314*p1);
   $(pfx+'d1').style.strokeDashoffset=o1; $(pfx+'d1v').textContent=(p1*100).toFixed(1)+'%';
   const p2=c.tong>0?c.tn/c.tong:0, o2=314-(314*p2);
@@ -660,7 +1113,6 @@ function updateMeasure(e) {
   $(pfx+'refdiff').textContent=(diff>=0?'+':'')+FMT(diff);
   $(pfx+'refdiff').style.color=diff>=0?'var(--green)':'var(--red)';
   $(pfx+'perh').textContent=c.totalH>0?FMT(Math.round(c.gio/c.totalH)):'0đ';
-
   const th=c.totalH||1;
   const hbars=[
     {l:'Ca ngày',v:(c.hD/th)*100,col:'#388bfd',cls:'bd-blue'},
@@ -668,117 +1120,44 @@ function updateMeasure(e) {
     {l:'Giãn ca',v:((c.hGN+c.hGE)/th)*100,col:'#f85149',cls:'bd-red'},
     {l:'Nghỉ phép',v:(c.hLv/th)*100,col:'#3fb950',cls:'bd-green'},
   ];
-  $(pfx+'hbars').innerHTML=`<div class="mg2" style="margin-bottom:12px;">
-    <div class="mc blue" style="padding:12px 14px;"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" style="font-size:19px;">${c.totalH}h</div></div>
-    <div class="mc green" style="padding:12px 14px;"><div class="mc-lbl">Bình quân/giờ</div><div class="mc-val" style="font-size:15px;">${c.totalH>0?FMT(Math.round(c.gio/c.totalH)):'0đ'}</div></div>
-  </div>`+hbars.map(b=>`<div class="bar-row"><div class="bar-hdr"><span>${b.l}</span><span class="badge ${b.cls}">${b.v.toFixed(1)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${b.v}%;background:${b.col};"></div></div></div>`).join('');
+  $(pfx+'hbars').innerHTML=`<div class="mg2" style="margin-bottom:12px;"><div class="mc blue" style="padding:12px 14px;"><div class="mc-lbl">Tổng giờ làm</div><div class="mc-val" style="font-size:19px;">${c.totalH}h</div></div><div class="mc green" style="padding:12px 14px;"><div class="mc-lbl">Bình quân/giờ</div><div class="mc-val" style="font-size:15px;">${c.totalH>0?FMT(Math.round(c.gio/c.totalH)):'0đ'}</div></div></div>`+hbars.map(b=>`<div class="bar-row"><div class="bar-hdr"><span>${b.l}</span><span class="badge ${b.cls}">${b.v.toFixed(1)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${b.v}%;background:${b.col};"></div></div></div>`).join('');
 }
 
-// ── SIMULATION ────────────────────────────────────────────────────
 function updateSim(e) {
   const c=getCalc(e);
   const target=Number($(`e${e}_target`)?.value)||15000000;
   const gap=target-c.tn;
-  if(gap<=0){
-    $(`e${e}_sim`).innerHTML=`<span style="color:var(--green)">✅ Đã đạt mục tiêu ${FMT(target)}! Thực nhận: ${FMT(c.tn)}</span>`;
-    return;
-  }
+  if(gap<=0){ $(`e${e}_sim`).innerHTML=`<span style="color:var(--green)">✅ Đã đạt mục tiêu ${FMT(target)}! Thực nhận: ${FMT(c.tn)}</span>`; return; }
   const v1ca=c.r*(8*1.0+4*1.5);
   const nd=Math.ceil(gap/v1ca);
   $(`e${e}_sim`).innerHTML=`<div style="color:var(--text)">Cần thêm <strong style="color:var(--accent)">${nd} ngày ca ngày</strong> (~${nd*12}h) để đạt <strong style="color:var(--amber)">${FMT(target)}</strong></div><div style="margin-top:6px;color:var(--text2)">Còn thiếu: <span style="color:var(--red)">${FMT(gap)}</span></div><div style="margin-top:4px;color:var(--text2)">Giá trị 1 ca ngày (8h+4hOT): <span style="color:var(--green)">${FMT(Math.round(v1ca))}</span></div>`;
 }
 
-// ── COMPARISON ────────────────────────────────────────────────────
 function renderComparison() {
   const c0=getCalc(0), c1=getCalc(1);
-  const n0=$('e0_name')?.value||'NV1', n1=$('e1_name')?.value||'NV2';
+  const n0=$('e0_name')?.value||'Bảo Trì', n1=$('e1_name')?.value||'Đan Lưới';
   const d0=$('e0_dept')?.value||'', d1=$('e1_dept')?.value||'';
-
   $('cmp_n0').textContent=n0; $('cmp_d0').textContent=d0;
   $('cmp_n1').textContent=n1; $('cmp_d1').textContent=d1;
   $('cmp_tn0').textContent=FMT(c0.tn);
   $('cmp_tn1').textContent=FMT(c1.tn);
   $('cmpH0').textContent=n0.split(' ').pop();
   $('cmpH1').textContent=n1.split(' ').pop();
-
   const diff=c0.tn-c1.tn;
   $('cmp_diff').textContent=(diff>=0?'+':'')+FMT(diff)+' ('+n0.split(' ').pop()+' - '+n1.split(' ').pop()+')';
   $('cmp_diff').className='diff-badge '+(diff>=0?'pos':'neg');
-
-  // vs bars
-  const max=Math.max(c0.tong,c1.tong)||1;
-  const vss=[
-    {l:'Lương theo giờ',a:c0.gio,b:c1.gio},
-    {l:'Phụ cấp',a:c0.pc,b:c1.pc},
-    {l:'Khấu trừ',a:c0.kt,b:c1.kt},
-    {l:'Thực nhận',a:c0.tn,b:c1.tn},
-  ];
-  $('cmp_vsbars').innerHTML=vss.map(({l,a,b})=>{
-    const tot=(a+b)||1, pa=(a/tot)*100, pb=(b/tot)*100;
-    return `<div style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;">
-        <span style="color:var(--e0);font-family:'JetBrains Mono',monospace;">${FMT(a)}</span>
-        <span style="font-weight:600;color:var(--text);">${l}</span>
-        <span style="color:var(--e1);font-family:'JetBrains Mono',monospace;">${FMT(b)}</span>
-      </div>
-      <div class="vs-track">
-        <div class="vs-a" style="width:${pa}%;background:linear-gradient(90deg,#1c4a8a,#388bfd);"></div>
-        <div class="vs-b" style="width:${pb}%;background:linear-gradient(90deg,#9b59f8,#bc8cff);"></div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // detail table
-  const rows=[
-    ['Đơn giá/giờ cơ bản',c0.r,c1.r],
-    ['Tổng giờ làm',c0.totalH,c1.totalH,'h'],
-    ['Lương theo giờ',c0.gio,c1.gio],
-    ['Tổng phụ cấp',c0.pc,c1.pc],
-    ['Tổng lương gộp',c0.tong,c1.tong],
-    ['BHXH khấu trừ',c0.bhxh,c1.bhxh],
-    ['Phí công đoàn',Nv('e0_cd'),Nv('e1_cd')],
-    ['Thuế TNCN',Nv('e0_tncn'),Nv('e1_tncn')],
-    ['Tổng khấu trừ',c0.kt,c1.kt],
-    ['Lương thực nhận',c0.tn,c1.tn],
-  ];
-  $('cmpBody').innerHTML=rows.map(([l,a,b,u])=>{
-    const d=a-b;
-    const fmt=u?`${a}${u}`:FMT(a);
-    const fmt2=u?`${b}${u}`:FMT(b);
-    const fmtd=u?`${d>0?'+':''}${d}${u}`:(d>=0?'+':'')+FMT(d);
-    const col=d>0?'var(--green)':d<0?'var(--red)':'var(--text2)';
-    return `<tr><td>${l}</td><td style="color:var(--e0);">${fmt}</td><td style="color:var(--e1);">${fmt2}</td><td style="color:${col};font-weight:600;">${fmtd}</td></tr>`;
-  }).join('');
-
-  // hours comparison
-  const hrows=[
-    ['Ca ngày thường',c0.hD+'h',c1.hD+'h'],
-    ['Ca đêm',c0.hN+'h',c1.hN+'h'],
-    ['OT ca ngày',c0.hOD+'h',c1.hOD+'h'],
-    ['OT ca đêm',c0.hON+'h',c1.hON+'h'],
-    ['Giãn ca ngày',c0.hGN+'h',c1.hGN+'h'],
-    ['Giãn ca đêm',c0.hGE+'h',c1.hGE+'h'],
-    ['Nghỉ có phép',c0.hLv+'h',c1.hLv+'h'],
-  ];
+  const vss=[{l:'Lương theo giờ',a:c0.gio,b:c1.gio},{l:'Phụ cấp',a:c0.pc,b:c1.pc},{l:'Khấu trừ',a:c0.kt,b:c1.kt},{l:'Thực nhận',a:c0.tn,b:c1.tn}];
+  $('cmp_vsbars').innerHTML=vss.map(({l,a,b})=>{const tot=(a+b)||1,pa=(a/tot)*100,pb=(b/tot)*100;return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;"><span style="color:var(--e0);font-family:'JetBrains Mono',monospace;">${FMT(a)}</span><span style="font-weight:600;color:var(--text);">${l}</span><span style="color:var(--e1);font-family:'JetBrains Mono',monospace;">${FMT(b)}</span></div><div class="vs-track"><div class="vs-a" style="width:${pa}%;background:linear-gradient(90deg,#1c4a8a,#388bfd);"></div><div class="vs-b" style="width:${pb}%;background:linear-gradient(90deg,#9b59f8,#bc8cff);"></div></div></div>`;}).join('');
+  const rows=[['Đơn giá/giờ cơ bản',c0.r,c1.r],['Tổng giờ làm',c0.totalH,c1.totalH,'h'],['Lương theo giờ',c0.gio,c1.gio],['Tổng phụ cấp',c0.pc,c1.pc],['Tổng lương gộp',c0.tong,c1.tong],['BHXH khấu trừ',c0.bhxh,c1.bhxh],['Phí công đoàn',Nv('e0_cd'),Nv('e1_cd')],['Thuế TNCN',Nv('e0_tncn'),Nv('e1_tncn')],['Tổng khấu trừ',c0.kt,c1.kt],['Lương thực nhận',c0.tn,c1.tn]];
+  $('cmpBody').innerHTML=rows.map(([l,a,b,u])=>{const d=a-b;const fmt=u?`${a}${u}`:FMT(a);const fmt2=u?`${b}${u}`:FMT(b);const fmtd=u?`${d>0?'+':''}${d}${u}`:(d>=0?'+':'')+FMT(d);const col=d>0?'var(--green)':d<0?'var(--red)':'var(--text2)';return `<tr><td>${l}</td><td style="color:var(--e0);">${fmt}</td><td style="color:var(--e1);">${fmt2}</td><td style="color:${col};font-weight:600;">${fmtd}</td></tr>`;}).join('');
+  const hrows=[['Ca ngày thường',c0.hD+'h',c1.hD+'h'],['Ca đêm',c0.hN+'h',c1.hN+'h'],['OT ca ngày',c0.hOD+'h',c1.hOD+'h'],['OT ca đêm',c0.hON+'h',c1.hON+'h'],['Giãn ca ngày',c0.hGN+'h',c1.hGN+'h'],['Giãn ca đêm',c0.hGE+'h',c1.hGE+'h'],['Nghỉ có phép',c0.hLv+'h',c1.hLv+'h']];
   $('cmp_hours').innerHTML=`<div style="overflow-x:auto"><table class="dt"><thead><tr><th>Loại ca</th><th style="color:var(--e0)">${n0.split(' ').pop()}</th><th style="color:var(--e1)">${n1.split(' ').pop()}</th></tr></thead><tbody>${hrows.map(([l,a,b])=>`<tr><td>${l}</td><td style="color:var(--e0);font-weight:500">${a}</td><td style="color:var(--e1);font-weight:500">${b}</td></tr>`).join('')}</tbody></table></div>`;
-
-  const totalQuỹ=c0.tn+c1.tn;
-  $('cmp_summary').innerHTML=`
-    <div class="mc blue"><div class="mc-lbl">Tổng quỹ lương</div><div class="mc-val" style="font-size:16px;">${FMT(totalQuỹ)}</div></div>
-    <div class="mc green"><div class="mc-lbl">Tổng giờ công</div><div class="mc-val" style="font-size:16px;">${c0.totalH+c1.totalH}h</div></div>
-    <div class="mc amber"><div class="mc-lbl">Bình quân lương/người</div><div class="mc-val" style="font-size:16px;">${FMT(totalQuỹ/2)}</div></div>
-  `;
 }
 
-// ── FOOTER ────────────────────────────────────────────────────────
 function updateFooter() {
   const c0=getCalc(0), c1=getCalc(1);
   $('f_tn0').textContent=FMT(c0.tn);
   $('f_tn1').textContent=FMT(c1.tn);
-  $('f_total').textContent=FMT(c0.tn+c1.tn);
-  const mo=$('e0_month')?.value||'5', yr=$('e0_year')?.value||'2025';
-  $('topSub').textContent=`Tháng ${mo}/${yr} · 2 nhân viên`;
-  $('footerTxt').textContent=`Hệ thống tính lương · Tháng ${mo}/${yr}`;
 }
 
 // ── NAV ───────────────────────────────────────────────────────────
@@ -788,34 +1167,626 @@ function switchMode(i, el) {
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
   $('view'+i)?.classList.add('active');
   el.classList.add('active');
+  if(i===0) calRenderCalendar(); // refresh calendar when switching to it
+  // Show mobile bottom bar only on calendar view
+  const mbb=$('mobBottomBar');
+  if(mbb) mbb.style.display = i===0 ? '' : 'none';
 }
 function switchInner(emp, tab, el) {
   innerState[emp]=tab;
-  const container=$('view'+emp);
+  const container=$('view'+(emp+1));
   container.querySelectorAll('.ipanel').forEach(p=>p.classList.remove('active'));
   container.querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
   $(`ip${emp}-${tab}`)?.classList.add('active');
   el.classList.add('active');
 }
 
-// ── SAVE / RESET ──────────────────────────────────────────────────
-function handleSave() {
-  const btn=$('saveBtn');
-  btn.textContent='✅ Đã lưu'; btn.className='btn btn-success';
-  $('toast').classList.add('show');
-  setTimeout(()=>{$('toast').classList.remove('show');btn.textContent='💾 Lưu';btn.className='btn btn-primary';},2500);
+// ── SALARY SAVE/LOAD ─────────────────────────────────────────────
+// Lưu cài đặt lương nhưng KHÔNG lưu số ca (days/nights/gcn/gcd/leave)
+// Số ca luôn lấy từ lịch ca tháng hiện tại → tránh cache sai
+const SALARY_FIELDS = ['name','dept','rate','days','nights','gcn','gcd','leave','tn3','dl','cc','tn6','tnhiem','vt','bhxh','cl','cd','tncn'];
+const SALARY_FIELDS_NOSAVE = new Set(['days','nights','gcn','gcd','leave']); // không cache số ca
+
+let _blockSalaryStorageSync = false;
+
+function saveSalaryData(broadcast=true) {
+  const data={};
+  [0,1].forEach(e=>{
+    data[e]={};
+    SALARY_FIELDS.forEach(k=>{
+      if(SALARY_FIELDS_NOSAVE.has(k)) return; // bỏ qua số ca
+      const el=$(`e${e}_${k}`);if(el)data[e][k]=el.value;
+    });
+  });
+  try {
+    _blockSalaryStorageSync = true;
+    localStorage.setItem(LUONG_KEY, JSON.stringify(data));
+    setTimeout(()=>_blockSalaryStorageSync=false, 100);
+    return true;
+  } catch(err){ console.error(err); return false; }
 }
+
+function loadSalaryData() {
+  try {
+    const raw=localStorage.getItem(LUONG_KEY);
+    if(!raw) return false;
+    const data=JSON.parse(raw);
+    [0,1].forEach(e=>{
+      if(!data[e]) return;
+      SALARY_FIELDS.forEach(k=>{
+        if(SALARY_FIELDS_NOSAVE.has(k)) return; // số ca sẽ được set từ lịch
+        const el=$(`e${e}_${k}`);if(el&&data[e][k]!==undefined)el.value=data[e][k];
+      });
+      recalc(e);
+    });
+    return true;
+  } catch(err){ console.error(err); return false; }
+}
+
+function handleSave() {
+  const ok=saveSalaryData();
+  const btn=$('saveBtn');
+  if(ok){
+    btn.textContent='✅ Đã lưu'; btn.className='btn btn-success';
+    showToast('💾 Đã lưu dữ liệu lương!');
+    setTimeout(()=>{ btn.textContent='💾 Lưu'; btn.className='btn btn-primary'; },2500);
+  } else {
+    btn.textContent='❌ Lỗi lưu'; btn.className='btn btn-danger';
+    setTimeout(()=>{ btn.textContent='💾 Lưu'; btn.className='btn btn-primary'; },2500);
+  }
+}
+
 function handleResetAll() {
+  if(!confirm('Xóa toàn bộ dữ liệu đã lưu và reset về mặc định?')) return;
+  localStorage.removeItem(LUONG_KEY);
   [0,1].forEach(e=>{
     const d=DEF[e];
-    Object.entries(d).forEach(([k,v])=>{const el=$(`e${e}_${k}`);if(el)el.value=v;});
+    Object.entries(d).forEach(([k,v])=>{
+      if(SALARY_FIELDS_NOSAVE && SALARY_FIELDS_NOSAVE.has && SALARY_FIELDS_NOSAVE.has(k)) return;
+      const el=$(`e${e}_${k}`);if(el)el.value=v;
+    });
+    // Số ca từ lịch hiện tại
+    const counts=calGetCounts(e,calYear,calMonth);
+    ['days','nights','gcn','gcd','leave'].forEach((f,i)=>{
+      const val=[counts.day,counts.night,counts.gcn,counts.gcd,counts.leave][i];
+      const el=$(`e${e}_${f}`);if(el)el.value=val;
+    });
     recalc(e);
   });
 }
 
-// ── INIT ──────────────────────────────────────────────────────────
-recalc(0);
-recalc(1);
+// ════════════════════════════════════════════════════════════════
+// CALENDAR MODULE
+// ════════════════════════════════════════════════════════════════
+const VI_MONTHS=['Tháng Một','Tháng Hai','Tháng Ba','Tháng Tư','Tháng Năm','Tháng Sáu','Tháng Bảy','Tháng Tám','Tháng Chín','Tháng Mười','Tháng Mười Một','Tháng Mười Hai'];
+const VI_DOW=['CN','T2','T3','T4','T5','T6','T7'];
+const SHIFT_CFG={
+  day:  {label:'Ca ngày',    icon:'☀️',hours:8},
+  night:{label:'Ca đêm',    icon:'🌙',hours:8},
+  gcn:  {label:'Giãn ca ngày',icon:'⚡',hours:12},
+  gcd:  {label:'Giãn ca đêm', icon:'⚡',hours:12},
+  leave:{label:'Nghỉ phép', icon:'🌿',hours:12},
+};
+
+const calToday=new Date();
+let calYear=calToday.getFullYear();
+let calMonth=calToday.getMonth();
+let calEmp=0;
+let calSelType='day';
+let calIsDragging=false;
+let calDragType=null;
+let calData={0:{},1:{}};
+let calNotes={0:{},1:{}};  // notes keyed by 'note_YYYY-MM-DD'
+let _blockCalStorageSync=false;
+
+function calLoadData() {
+  try {
+    const raw=localStorage.getItem(CAL_KEY);
+    if(raw) calData=JSON.parse(raw);
+    if(!calData[0]) calData[0]={};
+    if(!calData[1]) calData[1]={};
+  } catch(e){ calData={0:{},1:{}}; }
+  try {
+    const rawN=localStorage.getItem(CAL_KEY+'_notes');
+    if(rawN) calNotes=JSON.parse(rawN);
+    if(!calNotes[0]) calNotes[0]={};
+    if(!calNotes[1]) calNotes[1]={};
+  } catch(e){ calNotes={0:{},1:{}}; }
+}
+
+function calSaveData() {
+  try {
+    _blockCalStorageSync=true;
+    localStorage.setItem(CAL_KEY, JSON.stringify(calData));
+    setTimeout(()=>_blockCalStorageSync=false,100);
+    calFlashSaveInd();
+    // Luôn cập nhật snapshot tháng hiện tại
+    calSnapshotMonth(calYear, calMonth);
+  } catch(e){ console.error(e); }
+}
+
+function calFlashSaveInd() {
+  const dot=document.querySelector('#calSaveInd .save-dot');
+  if(dot){ dot.style.background='var(--accent)'; setTimeout(()=>dot.style.background='var(--green)',600); }
+}
+
+// ── LUNAR ────────────────────────────────────────────────────────
+function getLunar(year,month,day){
+  try{
+    const jd=gregToJD(year,month,day);
+    const [,lm,ld]=jdToLunar(jd);
+    return ld===1?`${ld}/${lm}`:`${ld}`;
+  }catch(e){return '';}
+}
+function gregToJD(y,m,d){if(m<=2){y--;m+=12;}const A=Math.floor(y/100);const B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524;}
+function jdToLunar(jd){const k=Math.floor((jd-2415021.076998695)/29.530588853);let ms=newMoonDay(k,7);if(ms>jd)ms=newMoonDay(k-1,7);const ld=jd-ms+1;const lm=Math.round((ms-getA11(k))/29)+11;return [Math.floor(k/12)+2000,lm>12?lm-12:lm,ld];}
+function getA11(k){let nm=newMoonDay(Math.floor(k/12)*12,7);let i=Math.floor(k/12)*12;while(getSunLong(nm)!==11){nm=newMoonDay(++i,7);}return nm;}
+function newMoonDay(k,tz){const T=k/1236.85;const T2=T*T;const T3=T2*T;let Jde=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3+0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*Math.PI/180);const M=359.2242+29.10535608*k-0.0000333*T2-0.00000347*T3;const Mpr=306.0253+385.81691806*k+0.0107306*T2+0.00001236*T3;const F=21.2964+390.67050646*k-0.0016528*T2-0.00000239*T3;const dr=Math.PI/180;Jde+=(0.1734-0.000393*T)*Math.sin(M*dr)+0.0021*Math.sin(2*M*dr)-0.4068*Math.sin(Mpr*dr)+0.0161*Math.sin(2*Mpr*dr)-0.0004*Math.sin(3*Mpr*dr)+0.0104*Math.sin(2*F*dr)-0.0051*Math.sin((M+Mpr)*dr)-0.0074*Math.sin((M-Mpr)*dr)+0.0004*Math.sin((2*F+M)*dr)-0.0004*Math.sin((2*F-M)*dr)-0.0006*Math.sin((2*F+Mpr)*dr)+0.0010*Math.sin((2*F-Mpr)*dr)+0.0005*Math.sin((M+2*Mpr)*dr);return Math.floor(Jde+0.5+tz/24);}
+function getSunLong(jdn){const T=(jdn-2451545.0)/36525;const dr=Math.PI/180;const M=357.52910+35999.05030*T-0.0001559*T*T;const L0=280.46645+36000.76983*T+0.0003032*T*T;const DL=(1.914600-0.004817*T-0.000014*T*T)*Math.sin(dr*M)+(0.019993-0.000101*T)*Math.sin(dr*2*M)+0.000290*Math.sin(dr*3*M);let L=L0+DL;L=L-360*Math.floor(L/360);return Math.floor(L/30);}
+
+function calDateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+
+function calSelectType(type){
+  calSelType=type;
+  document.querySelectorAll('.stype-btn').forEach(b=>b.classList.remove('selected'));
+  $('stype_'+type)?.classList.add('selected');
+}
+
+function calSwitchEmp(e){
+  calEmp=e;
+  $('calTab0').classList.toggle('active',e===0);
+  $('calTab1').classList.toggle('active',e===1);
+  calRenderCalendar();
+}
+
+function calChangeMonth(delta){
+  calMonth+=delta;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  calRenderCalendar();
+}
+
+function calMarkDay(day,type){
+  const key=calDateKey(calYear,calMonth,day);
+  if(type==='erase') delete calData[calEmp][key];
+  else calData[calEmp][key]=type;
+  calSaveData();
+  calUpdateCell(day);
+  calUpdateSummary();
+  // Real-time push to salary fields
+  calPushToSalary(calEmp);
+}
+
+function calUpdateCell(day){
+  const el=document.querySelector(`[data-day="${day}"]`);
+  if(!el) return;
+  const key=calDateKey(calYear,calMonth,day);
+  const type=calData[calEmp][key];
+  el.classList.remove('s-day','s-night','s-gcn','s-gcd','s-leave');
+  const iconEl=el.querySelector('.day-shift-icon');
+  if(type&&SHIFT_CFG[type]){el.classList.add('s-'+type);if(iconEl)iconEl.textContent=SHIFT_CFG[type].icon;}
+  else{if(iconEl)iconEl.textContent='';}
+}
+
+function calRenderCalendar(){
+  const grid=$('calGrid');
+  const titleEl=$('calMonthTitle');
+  titleEl.innerHTML=`${VI_MONTHS[calMonth]}<span class="year">${calYear}</span>`;
+  const dowHTML=VI_DOW.map((d,i)=>`<div class="dow-cell${i===0?' sun':i===6?' sat':''}">${d}</div>`).join('');
+  const firstDow=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  let cells='';
+  for(let i=0;i<firstDow;i++) cells+=`<div class="day-cell empty"></div>`;
+  const todayKey=calDateKey(calToday.getFullYear(),calToday.getMonth(),calToday.getDate());
+  for(let d=1;d<=daysInMonth;d++){
+    const key=calDateKey(calYear,calMonth,d);
+    const type=calData[calEmp][key];
+    const dow=new Date(calYear,calMonth,d).getDay();
+    const isToday=key===todayKey;
+    const isSun=dow===0,isSat=dow===6;
+    let cls='day-cell normal';
+    if(isSun)cls+=' sun';if(isSat)cls+=' sat';if(isToday)cls+=' today';if(type)cls+=' s-'+type;
+    let lunar='';try{lunar=getLunar(calYear,calMonth+1,d);}catch(e){}
+    const shiftIcon=type?SHIFT_CFG[type]?.icon||'':'';
+    const noteKey='note_'+calDateKey(calYear,calMonth,d);
+    const hasNote=calNotes[calEmp]&&calNotes[calEmp][noteKey];
+    cells+=`<div class="${cls}" data-day="${d}"
+      onmousedown="calOnCellDown(${d})"
+      onmouseenter="calOnCellEnter(${d})"
+      onmouseup="calOnCellUp()"
+      ontouchstart="calOnCellDown(${d});event.preventDefault();"
+      ontouchmove="calHandleTouchMove(event)"
+      ontouchend="calOnCellUp()"
+      oncontextmenu="openNoteModal(${d});event.preventDefault();">
+      <div class="day-num">${d}</div>
+      <div class="day-shift-icon">${shiftIcon}</div>
+      <div class="day-lunar">${lunar}</div>
+      ${hasNote?'<div class="day-note-dot"></div>':''}
+    </div>`;
+  }
+  grid.innerHTML=dowHTML+cells;
+  calUpdateSummary();
+}
+
+let _longPressTimer=null;
+
+function calOnCellDown(day){
+  // Long-press to open note (500ms)
+  _longPressTimer=setTimeout(()=>{
+    calIsDragging=false; calDragType=null;
+    openNoteModal(day);
+  },600);
+  calIsDragging=true;
+  const key=calDateKey(calYear,calMonth,day);
+  const cur=calData[calEmp][key];
+  calDragType=(calSelType==='erase'||cur===calSelType)?'erase':calSelType;
+  calMarkDay(day,calDragType);
+}
+function calOnCellEnter(day){if(!calIsDragging)return;clearTimeout(_longPressTimer);calMarkDay(day,calDragType);}
+function calOnCellUp(){clearTimeout(_longPressTimer);calIsDragging=false;calDragType=null;}
+document.addEventListener('mouseup',()=>{clearTimeout(_longPressTimer);calIsDragging=false;calDragType=null;});
+function calHandleTouchMove(e){
+  if(!calIsDragging)return;
+  const touch=e.touches[0];
+  const el=document.elementFromPoint(touch.clientX,touch.clientY);
+  if(!el)return;
+  const cell=el.closest('[data-day]');
+  if(cell){const d=parseInt(cell.dataset.day);if(d)calMarkDay(d,calDragType);}
+}
+
+function calUpdateSummary(){
+  const counts={day:0,night:0,gcn:0,gcd:0,leave:0};
+  const prefix=calDateKey(calYear,calMonth,1).slice(0,7);
+  Object.entries(calData[calEmp]).forEach(([k,v])=>{if(k.startsWith(prefix)&&counts[v]!==undefined)counts[v]++;});
+  const totalDays=Object.values(counts).reduce((a,b)=>a+b,0);
+  const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12;
+  const otH=counts.day*4+counts.night*4;
+  const types=['day','night','gcn','gcd','leave'];
+  $('calSummaryGrid').innerHTML=types.map(t=>{const cfg=SHIFT_CFG[t];const h=counts[t]*cfg.hours;return `<div class="sum-card s-${t}"><div class="sum-icon">${cfg.icon}</div><div class="sum-count">${counts[t]}</div><div class="sum-label">${cfg.label}</div><div class="sum-hours">${h}h</div></div>`;}).join('');
+  $('calTotalRow').innerHTML=`<span class="tr-label">Tổng ${VI_MONTHS[calMonth]} ${calYear}:</span><span class="total-chip tc-days">📅 ${totalDays} ca</span><span class="total-chip tc-hours">⏱ ${totalH}h làm</span>${otH>0?`<span class="total-chip tc-ot">OT +${otH}h</span>`:''}`;
+  $('calSaveTxt').textContent=`${calEmp===0?'Bảo Trì':'Đan Lưới'} · ${VI_MONTHS[calMonth]} ${calYear} · ${totalDays} ca`;
+}
+
+// ── APPLY CALENDAR → SALARY FIELDS ───────────────────────────────
+function calGetCounts(empIdx, year, month){
+  const counts={day:0,night:0,gcn:0,gcd:0,leave:0};
+  const prefix=calDateKey(year,month,1).slice(0,7);
+  Object.entries(calData[empIdx]).forEach(([k,v])=>{if(k.startsWith(prefix)&&counts[v]!==undefined)counts[v]++;});
+  return counts;
+}
+
+function calPushToSalary(empIdx) {
+  const counts=calGetCounts(empIdx,calYear,calMonth);
+  const e=empIdx;
+  const setField=(id,val)=>{const el=$(id);if(el){el.value=val;el.dispatchEvent(new Event('input'));}};
+  setField(`e${e}_days`,counts.day);
+  setField(`e${e}_nights`,counts.night);
+  setField(`e${e}_gcn`,counts.gcn);
+  setField(`e${e}_gcd`,counts.gcd);
+  setField(`e${e}_leave`,counts.leave);
+  // Flash sync
+  flashSyncBadge('Đang cập nhật...');
+}
+
+function calApply(){
+  // Apply current employee
+  calPushToSalary(calEmp);
+  const counts=calGetCounts(calEmp,calYear,calMonth);
+  const total=Object.values(counts).reduce((a,b)=>a+b,0);
+  showToast(`↗ Đã áp dụng ${total} ca → lương ${calEmp===0?'Bảo Trì':'Đan Lưới'}`, 'sync');
+  // Switch to salary view
+  const btn=$('modeBtn'+(calEmp+1));
+  if(btn) switchMode(calEmp+1,btn);
+}
+
+function calClearMonth(){
+  if(!confirm(`Xóa toàn bộ ca tháng này (${VI_MONTHS[calMonth]} ${calYear})?`)) return;
+  const prefix=calDateKey(calYear,calMonth,1).slice(0,7);
+  Object.keys(calData[calEmp]).forEach(k=>{if(k.startsWith(prefix))delete calData[calEmp][k];});
+  calSaveData();
+  calRenderCalendar();
+  calPushToSalary(calEmp);
+  showToast('🗑 Đã xóa ca tháng này');
+}
+
+function calClearAll(){
+  if(!confirm('Xóa toàn bộ dữ liệu ca (tất cả tháng, cả 2 nhân viên)?')) return;
+  calData={0:{},1:{}};
+  calSaveData();
+  calRenderCalendar();
+  calPushToSalary(0); calPushToSalary(1);
+  showToast('↺ Đã xóa toàn bộ dữ liệu ca');
+}
+
+// ── NOTE FUNCTIONS ────────────────────────────────────────────────
+let _noteDay=null, _noteYear=null, _noteMonth=null;
+
+function openNoteModal(day) {
+  _noteDay=day; _noteYear=calYear; _noteMonth=calMonth;
+  const dateStr=new Date(calYear,calMonth,day).toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('noteModalDay').textContent='📅 '+dateStr;
+  const nk='note_'+calDateKey(calYear,calMonth,day);
+  $('noteTextarea').value=(calNotes[calEmp]&&calNotes[calEmp][nk])||'';
+  $('noteModal').style.display='flex';
+  setTimeout(()=>$('noteTextarea').focus(),100);
+}
+
+function closeNoteModal() {
+  $('noteModal').style.display='none';
+  _noteDay=null;
+}
+
+function saveNote() {
+  if(_noteDay===null) return;
+  const nk='note_'+calDateKey(_noteYear,_noteMonth,_noteDay);
+  const txt=$('noteTextarea').value.trim();
+  if(!calNotes[calEmp]) calNotes[calEmp]={};
+  if(txt) calNotes[calEmp][nk]=txt;
+  else delete calNotes[calEmp][nk];
+  try{ localStorage.setItem(CAL_KEY+'_notes',JSON.stringify(calNotes)); }catch(e){}
+  closeNoteModal();
+  calRenderCalendar();
+  showToast(txt?'📝 Đã lưu ghi chú':'🗑 Đã xóa ghi chú');
+}
+
+function deleteNote() {
+  if(_noteDay===null) return;
+  const nk='note_'+calDateKey(_noteYear,_noteMonth,_noteDay);
+  if(calNotes[calEmp]) delete calNotes[calEmp][nk];
+  try{ localStorage.setItem(CAL_KEY+'_notes',JSON.stringify(calNotes)); }catch(e){}
+  closeNoteModal();
+  calRenderCalendar();
+  showToast('🗑 Đã xóa ghi chú');
+}
+
+// ── PREV MONTH MODAL ─────────────────────────────────────────────
+let pvEmp=0;
+
+function calShowPrevMonth() {
+  pvEmp=calEmp;
+  $('pvTab0').classList.toggle('active',pvEmp===0);
+  $('pvTab1').classList.toggle('active',pvEmp===1);
+  pvRender();
+  $('prevMonthModal').style.display='flex';
+}
+
+function closePrevMonthModal() {
+  $('prevMonthModal').style.display='none';
+}
+
+function pvSwitchEmp(e) {
+  pvEmp=e;
+  $('pvTab0').classList.toggle('active',e===0);
+  $('pvTab1').classList.toggle('active',e===1);
+  pvRender();
+}
+
+// ── KEY SHORTCUTS (calendar only when in view0) ───────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if($('noteModal').style.display!=='none'){closeNoteModal();return;}
+    if($('prevMonthModal').style.display!=='none'){closePrevMonthModal();return;}
+  }
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(activeMode!==0) return;
+  const map={'1':'day','2':'night','3':'gcn','4':'gcd','5':'leave',' ':'erase','Delete':'erase','Backspace':'erase'};
+  if(map[e.key]){calSelectType(map[e.key]);e.preventDefault();}
+  if(e.key==='ArrowLeft') calChangeMonth(-1);
+  if(e.key==='ArrowRight') calChangeMonth(+1);
+});
+
+// ════════════════════════════════════════════════════════════════
+// REAL-TIME SYNC via localStorage + storage event
+// ════════════════════════════════════════════════════════════════
+// When calendar data changes in ANOTHER TAB → update salary fields here
+// When salary data changes in ANOTHER TAB → reload salary fields here
+window.addEventListener('storage', e => {
+  if(e.key === CAL_KEY && !_blockCalStorageSync) {
+    // Calendar updated from another tab/window
+    try {
+      const newData = JSON.parse(e.newValue || '{}');
+      calData = newData;
+      if(!calData[0]) calData[0]={};
+      if(!calData[1]) calData[1]={};
+      // Re-render calendar if visible
+      if(activeMode===0) calRenderCalendar();
+      // Push updated shift counts to salary
+      calPushToSalary(0);
+      calPushToSalary(1);
+      flashSyncBadge('Đồng bộ lịch ca...');
+    } catch(err){ console.error(err); }
+  }
+  if(e.key === LUONG_KEY && !_blockSalaryStorageSync) {
+    // Salary data updated from another tab/window
+    try {
+      const newData = JSON.parse(e.newValue || '{}');
+      [0,1].forEach(emp => {
+        if(!newData[emp]) return;
+        SALARY_FIELDS.forEach(k => {
+          if(SALARY_FIELDS_NOSAVE.has(k)) return; // số ca không đồng bộ từ tab khác
+          const el = $(`e${emp}_${k}`);
+          if(el && newData[emp][k] !== undefined) el.value = newData[emp][k];
+        });
+        recalc(emp);
+      });
+      flashSyncBadge('Đồng bộ lương...');
+    } catch(err){ console.error(err); }
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// AUTO MONTH SNAPSHOT — lưu snapshot khi hết tháng
+// ════════════════════════════════════════════════════════════════
+const SNAPSHOT_KEY = 'demca_snapshot_v1'; // {year, month, data0, data1}
+
+function calSnapshotMonth(y, m) {
+  // Lưu snapshot tháng y/m (dùng cho "theo dõi tháng")
+  try {
+    const existing = JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||'[]');
+    const key = `${y}-${String(m+1).padStart(2,'0')}`;
+    const idx = existing.findIndex(s=>s.key===key);
+    const snap = {
+      key, year:y, month:m,
+      data: [
+        JSON.parse(JSON.stringify(calData[0])),
+        JSON.parse(JSON.stringify(calData[1]))
+      ],
+      notes: [
+        JSON.parse(JSON.stringify(calNotes[0]||{})),
+        JSON.parse(JSON.stringify(calNotes[1]||{}))
+      ]
+    };
+    if(idx>=0) existing[idx]=snap; else existing.push(snap);
+    // Giữ tối đa 12 tháng gần nhất
+    existing.sort((a,b)=>b.key.localeCompare(a.key));
+    while(existing.length>12) existing.pop();
+    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(existing));
+  } catch(e){ console.error('Snapshot error',e); }
+}
+
+function calGetSnapshot(y, m) {
+  // Lấy snapshot của tháng y/m, fallback về calData nếu là tháng hiện tại
+  const todayNow = new Date();
+  if(y===todayNow.getFullYear() && m===todayNow.getMonth()) {
+    return { data:[calData[0],calData[1]], notes:[calNotes[0],calNotes[1]] };
+  }
+  try {
+    const existing = JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||'[]');
+    const key = `${y}-${String(m+1).padStart(2,'0')}`;
+    const snap = existing.find(s=>s.key===key);
+    if(snap) return snap;
+  } catch(e){}
+  // Fallback: dùng calData (có thể trống)
+  return { data:[calData[0],calData[1]], notes:[calNotes[0],calNotes[1]] };
+}
+
+// Override pvRender để dùng snapshot
+function pvRenderFromSnapshot(pvY, pvM, empIdx) {
+  const snap = calGetSnapshot(pvY, pvM);
+  const snapData = snap.data[empIdx]||{};
+  const snapNotes = snap.notes[empIdx]||{};
+  const empName = empIdx===0?'Bảo Trì':'Đan Lưới';
+  $('pvModalTitle').textContent=`📊 ${empName} · ${VI_MONTHS[pvM]} ${pvY}`;
+
+  const firstDow=new Date(pvY,pvM,1).getDay();
+  const daysInMonth=new Date(pvY,pvM+1,0).getDate();
+  const prefix=calDateKey(pvY,pvM,1).slice(0,7);
+
+  let html=VI_DOW.map((d,i)=>`<div class="pv-dow${i===0?' sun':i===6?' sat':''}">${d}</div>`).join('');
+  for(let i=0;i<firstDow;i++) html+=`<div class="pv-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const key=calDateKey(pvY,pvM,d);
+    const type=snapData[key];
+    const dow=new Date(pvY,pvM,d).getDay();
+    let cls='pv-day';
+    if(dow===0)cls+=' pv-sun';if(dow===6)cls+=' pv-sat';if(type)cls+=' s-'+type;
+    let lunar='';try{lunar=getLunar(pvY,pvM+1,d);}catch(e){}
+    const shiftIcon=type?SHIFT_CFG[type]?.icon||'':'';
+    const nk='note_'+key;
+    const hasNote=snapNotes[nk];
+    html+=`<div class="${cls}">
+      <div class="pv-num">${d}</div>
+      <div class="pv-icon">${shiftIcon}</div>
+      <div class="pv-lunar">${lunar}</div>
+      ${hasNote?'<div class="pv-note-dot"></div>':''}
+    </div>`;
+  }
+  $('pvCalGrid').innerHTML=html;
+
+  const counts={day:0,night:0,gcn:0,gcd:0,leave:0};
+  Object.entries(snapData).forEach(([k,v])=>{if(k.startsWith(prefix)&&counts[v]!==undefined)counts[v]++;});
+  const types=['day','night','gcn','gcd','leave'];
+  $('pvSummary').innerHTML=types.map(t=>{const cfg=SHIFT_CFG[t];const h=counts[t]*cfg.hours;return `<div class="sum-card s-${t}"><div class="sum-icon">${cfg.icon}</div><div class="sum-count">${counts[t]}</div><div class="sum-label">${cfg.label}</div><div class="sum-hours">${h}h</div></div>`;}).join('');
+  const totalDays=Object.values(counts).reduce((a,b)=>a+b,0);
+  const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12;
+  const otH=counts.day*4+counts.night*4;
+  $('pvTotalRow').innerHTML=`<span class="tr-label">Tổng ${VI_MONTHS[pvM]} ${pvY}:</span><span class="total-chip tc-days">📅 ${totalDays} ca</span><span class="total-chip tc-hours">⏱ ${totalH}h làm</span>${otH>0?`<span class="total-chip tc-ot">OT +${otH}h</span>`:''}`;
+
+  const noteEntries=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const nk='note_'+calDateKey(pvY,pvM,d);
+    if(snapNotes[nk]) noteEntries.push({d,text:snapNotes[nk]});
+  }
+  if(noteEntries.length>0){
+    $('pvNoteList').innerHTML=`<div class="stitle cal" style="margin-top:14px;">📝 Ghi chú trong tháng</div>`+noteEntries.map(({d,text})=>{
+      const dateStr=new Date(pvY,pvM,d).toLocaleDateString('vi-VN',{weekday:'short',day:'numeric',month:'numeric'});
+      return `<div class="pv-note-item"><div class="pv-note-day">${dateStr}</div><div class="pv-note-text">${text.replace(/</g,'&lt;')}</div></div>`;
+    }).join('');
+  } else { $('pvNoteList').innerHTML=''; }
+}
+
+// Patch pvRender và pvSwitchEmp để dùng snapshot
+function pvRender() {
+  let pvM=calMonth-1, pvY=calYear;
+  if(pvM<0){pvM=11;pvY--;}
+  pvRenderFromSnapshot(pvY,pvM,pvEmp);
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTO DATE TICK — kiểm tra mỗi phút, re-render nếu ngày/tháng đổi
+// ════════════════════════════════════════════════════════════════
+let _lastCheckedDate = new Date().toDateString();
+let _lastCheckedMonth = new Date().getMonth();
+let _lastCheckedYear = new Date().getFullYear();
+
+function calDateTick() {
+  const now = new Date();
+  const nowStr = now.toDateString();
+  if(nowStr === _lastCheckedDate) return; // Không đổi ngày
+
+  const prevMonth = _lastCheckedMonth;
+  const prevYear = _lastCheckedYear;
+  const newMonth = now.getMonth();
+  const newYear = now.getFullYear();
+
+  // Nếu tháng đổi → snapshot tháng vừa qua
+  if(newMonth !== prevMonth || newYear !== prevYear) {
+    calSnapshotMonth(prevYear, prevMonth);
+    showToast(`📸 Đã lưu snapshot ${VI_MONTHS[prevMonth]} ${prevYear}`,'sync');
+    // Reset ca tháng mới về 0 vì chưa có dữ liệu
+    [0,1].forEach(e=>{ calPushToSalary(e); });
+  }
+
+  _lastCheckedDate = nowStr;
+  _lastCheckedMonth = newMonth;
+  _lastCheckedYear = newYear;
+
+  // Cập nhật calToday reference và re-render nếu đang xem lịch tháng hiện tại
+  Object.assign(calToday, now); // update reference
+  if(activeMode===0) calRenderCalendar();
+}
+
+setInterval(calDateTick, 60000); // Kiểm tra mỗi 1 phút
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+calLoadData();
+
+// Snapshot tháng hiện tại vào lúc load (để luôn có data mới nhất)
+calSnapshotMonth(calYear, calMonth);
+
+calRenderCalendar();
+calSelectType('day');
+
+// ── Fix cache lương: luôn lấy số ca từ lịch tháng hiện tại ──────
+// Bước 1: Load cài đặt lương (tên, đơn giá, phụ cấp, khấu trừ)
+const hadSaved = loadSalaryData();
+
+// Bước 2: LUÔN ghi đè số ca (days/nights/gcn/gcd/leave) từ lịch tháng hiện tại
+// → tránh cache số ca tháng cũ hiển thị lương sai
+(function() {
+  const setField=(id,val)=>{const el=$(id);if(el){el.value=val;el.dispatchEvent(new Event('input'));}};
+  [0,1].forEach(e => {
+    const counts = calGetCounts(e, calYear, calMonth);
+    // Ghi đè các trường số ca — kể cả khi = 0 (không có ca = không có lương ca đó)
+    setField(`e${e}_days`,  counts.day);
+    setField(`e${e}_nights`,counts.night);
+    setField(`e${e}_gcn`,   counts.gcn);
+    setField(`e${e}_gcd`,   counts.gcd);
+    setField(`e${e}_leave`, counts.leave);
+  });
+})();
 </script>
 </body>
 </html>
