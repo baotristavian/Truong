@@ -332,19 +332,7 @@ svg.donut{transform:rotate(-90deg);}
 /* ── NOTE DOT ── */
 .day-note-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);position:absolute;bottom:4px;right:4px;pointer-events:none;}
 
-/* ── MOBILE BOTTOM BAR (calendar apply) ── */
-.mob-bottom-bar{display:none;}
-@media(max-width:640px){
-  .mob-bottom-bar{
-    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;
-    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-    background:linear-gradient(to top,var(--bg) 60%,transparent);
-    gap:8px;align-items:center;
-  }
-  .mob-bottom-bar .btn{flex:1;justify-content:center;padding:12px;font-size:13px;}
-  /* Hide inline apply strip on mobile since FAB handles it */
-  .apply-strip{display:none;}
-}
+/* ── Mobile bottom bar — defined in responsive section below ── */
 
 /* ── MODAL OVERLAY ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;animation:fi .2s ease;}
@@ -404,7 +392,7 @@ svg.donut{transform:rotate(-90deg);}
    RESPONSIVE — TABLET (≤768px)
 ═══════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
-  body{padding:16px 12px;}
+  body{padding:14px 12px;}
   .mg3{grid-template-columns:1fr 1fr;}
   .g3{grid-template-columns:1fr 1fr;}
 }
@@ -413,163 +401,196 @@ svg.donut{transform:rotate(-90deg);}
    RESPONSIVE — MOBILE (≤640px)
 ═══════════════════════════════════════════════════════════════ */
 @media(max-width:640px){
-  /* ── Body & container ── */
-  body{padding:12px 10px 80px;}/* bottom padding for FAB */
 
-  /* ── Top nav: compact ── */
-  .top-nav{flex-direction:row;gap:8px;align-items:center;margin-bottom:16px;padding-bottom:14px;flex-wrap:wrap;}
-  .brand-icon{width:36px;height:36px;font-size:17px;border-radius:9px;}
-  .brand-name{font-size:16px;}
-  .brand-sub{font-size:10px;}
-  .nav-actions{gap:5px;margin-left:auto;}
-  /* Hide print button on mobile */
+  /* ── Body ── */
+  body{padding:10px 8px calc(72px + env(safe-area-inset-bottom));}
+
+  /* ── Top nav ── */
+  .top-nav{margin-bottom:12px;padding-bottom:12px;gap:0;flex-wrap:nowrap;}
+  .brand{gap:9px;}
+  .brand-icon{width:34px;height:34px;font-size:16px;border-radius:8px;flex-shrink:0;}
+  .brand-name{font-size:14px;letter-spacing:-.3px;}
+  .brand-sub{font-size:10px;margin-top:1px;}
+  .nav-actions{gap:4px;margin-left:auto;flex-shrink:0;}
   .nav-print{display:none;}
-  .btn{padding:7px 13px;font-size:12px;}
-  .sync-badge{font-size:10px;padding:3px 8px;}
+  .sync-badge{display:none;}/* ocupa espaço — escondido em mobile */
+  .btn{padding:7px 11px;font-size:12px;gap:4px;}
+  #saveBtn,button.btn-danger{padding:7px 10px;font-size:11px;}
 
-  /* ── Mode bar: icon-only on very small ── */
-  .mode-bar{margin-bottom:16px;gap:3px;padding:3px;}
-  .mode-btn{padding:9px 6px;font-size:11px;gap:4px;}
-  .mode-btn-label{display:none;}/* hide text labels in mode-bar, keep emoji */
+  /* ── Mode bar ── */
+  .mode-bar{margin-bottom:12px;gap:3px;padding:3px;}
+  .mode-btn{padding:10px 4px;font-size:13px;gap:0;flex-direction:column;line-height:1;}
+  .mode-btn-label{display:block;font-size:9px;font-weight:600;margin-top:3px;letter-spacing:.02em;}
 
   /* ── Grids ── */
-  .g2,.cmp-grid{grid-template-columns:1fr;}
-  .g3{grid-template-columns:1fr 1fr;}/* 2-col for shift count inputs */
+  .g2{grid-template-columns:1fr;}
+  .g3{grid-template-columns:1fr 1fr;}
   .mg3{grid-template-columns:1fr 1fr;}
   .mg2{grid-template-columns:1fr 1fr;}
 
-  /* ── Hero card ── */
-  .hero{padding:16px 18px;margin-bottom:14px;}
-  .hero-val{font-size:26px;}
-  .hero-sub{font-size:11px;}
+  /* ── Hero ── */
+  .hero{padding:14px 16px;margin-bottom:12px;border-radius:12px;}
+  .hero-lbl{font-size:11px;}
+  .hero-val{font-size:24px;letter-spacing:-.5px;}
+  .hero-sub{font-size:11px;margin-top:4px;}
 
   /* ── Metric cards ── */
-  .mc{padding:12px 13px;}
-  .mc-val{font-size:15px;}
-  .mc-lbl{font-size:10px;margin-bottom:5px;}
+  .mc{padding:11px 12px;border-radius:10px;}
+  .mc-lbl{font-size:10px;margin-bottom:4px;}
+  .mc-val{font-size:14px;}
 
   /* ── Section title ── */
-  .stitle{margin:16px 0 10px;font-size:10px;}
+  .stitle{margin:14px 0 9px;font-size:10px;padding-bottom:6px;}
 
   /* ── Form fields ── */
-  .field input{font-size:14px;padding:10px 12px;}/* bigger tap targets */
+  .field{gap:4px;}
   .field label{font-size:11px;}
+  .field input{font-size:15px;padding:11px 12px;border-radius:7px;}
+  .field-hint{font-size:10px;}
 
-  /* ── Inner tabs: scrollable row ── */
-  .inner-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:3px;}
+  /* ── Inner tabs ── */
+  .inner-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:3px;margin-bottom:16px;}
   .inner-tabs::-webkit-scrollbar{display:none;}
-  .itab{white-space:nowrap;padding:8px 12px;font-size:11px;flex:0 0 auto;}
+  .itab{white-space:nowrap;padding:9px 13px;font-size:11px;flex:0 0 auto;}
 
   /* ── Footer ── */
-  .footer{flex-direction:column;gap:8px;padding:10px 14px;font-size:11px;}
-  .fv{flex-direction:row;flex-wrap:wrap;gap:10px;}
+  .footer{flex-direction:row;flex-wrap:wrap;gap:6px;padding:10px 12px;font-size:11px;border-radius:8px;}
+  .fv{gap:12px;}
 
-  /* ── Toast: full width bottom ── */
-  .toast{bottom:16px;right:10px;left:10px;font-size:12px;padding:10px 16px;}
+  /* ── Toast ── */
+  .toast{bottom:80px;right:8px;left:8px;font-size:12px;padding:10px 14px;border-radius:9px;}
 
-  /* ── Calendar: cal header bar ── */
-  .cal-header-bar{padding:11px 13px;gap:8px;border-radius:11px;margin-bottom:14px;}
-  .cal-brand-icon{width:34px;height:34px;font-size:17px;}
-  .cal-header-bar .cal-header-left div:first-child+div div:first-child{font-size:13px;}
-  .cal-header-actions{width:100%;justify-content:flex-end;}
-  .cal-header-actions .btn{font-size:11px;padding:6px 11px;}
+  /* ────────────────────────────────
+     CALENDAR VIEW
+  ──────────────────────────────── */
+  /* Header bar */
+  .cal-header-bar{padding:10px 12px;gap:8px;border-radius:10px;margin-bottom:12px;flex-wrap:nowrap;}
+  .cal-brand-icon{width:32px;height:32px;font-size:15px;flex-shrink:0;}
+  .cal-header-bar .cal-header-left div:first-child+div div:first-child{font-size:12px;}
+  .cal-header-bar .cal-header-left div:first-child+div .save-indicator{font-size:10px;}
+  .cal-header-actions{display:none;}/* replaced by mob-bottom-bar */
 
-  /* ── Calendar: employee tabs ── */
-  .cal-emp-tabs{margin-bottom:14px;}
-  .cal-emp-tab{font-size:12px;padding:8px 10px;}
+  /* Employee tabs */
+  .cal-emp-tabs{margin-bottom:10px;padding:3px;gap:3px;}
+  .cal-emp-tab{font-size:12px;padding:8px 8px;gap:5px;border-radius:7px;}
 
-  /* ── Calendar: month nav ── */
-  .month-nav{margin-bottom:12px;}
+  /* Month nav */
+  .month-nav{margin-bottom:10px;}
   .month-nav-title{font-size:15px;}
-  .nav-btn{padding:8px 14px;font-size:16px;min-width:44px;}/* bigger tap area */
+  .nav-btn{padding:9px 16px;font-size:18px;min-width:48px;border-radius:9px;}
 
-  /* ── Calendar: shift type selector → scrollable pill row ── */
-  .shift-bar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px;padding-bottom:4px;margin-bottom:12px;}
+  /* Shift selector — horizontal scroll */
+  .shift-bar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px;padding-bottom:2px;margin-bottom:10px;}
   .shift-bar::-webkit-scrollbar{display:none;}
-  .shift-bar-label{display:none;}/* remove label on mobile to save space */
-  .stype-btn{flex:0 0 auto;padding:7px 12px;font-size:12px;white-space:nowrap;}
+  .shift-bar-label{display:none;}
+  .stype-btn{flex:0 0 auto;padding:8px 13px;font-size:12px;white-space:nowrap;border-radius:7px;}
 
-  /* ── Calendar: grid & cells ── */
-  .cal-wrap{padding:10px 8px;border-radius:11px;margin-bottom:12px;}
-  .cal-grid{gap:3px;}
-  .day-cell{min-height:46px;padding:5px 2px 3px;border-radius:8px;}
-  .day-num{font-size:12px;margin-bottom:3px;}
-  .day-shift-icon{font-size:13px;}
+  /* Drag hint */
+  .drag-hint{font-size:10px;padding:4px 0 0;}
+
+  /* Calendar wrap & grid */
+  .cal-wrap{padding:8px 6px;border-radius:10px;margin-bottom:10px;}
+  .cal-grid{gap:2px;}
+  .dow-cell{font-size:9px;padding:5px 1px 3px;}
+  .day-cell{min-height:48px;padding:5px 2px 3px;border-radius:7px;}
+  .day-num{font-size:13px;font-weight:700;margin-bottom:3px;}
+  .day-shift-icon{font-size:14px;}
   .day-lunar{display:none;}
-  .day-note-dot{width:4px;height:4px;bottom:3px;right:3px;}
+  .day-note-dot{width:5px;height:5px;bottom:3px;right:3px;}
 
-  /* ── Calendar: drag hint ── */
-  .drag-hint{font-size:10px;}
-
-  /* ── Calendar: legend → 2 col grid ── */
-  .legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-bottom:12px;}
+  /* Legend */
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin-bottom:10px;}
   .leg-item{font-size:10px;}
 
-  /* ── Calendar: summary grid ── */
-  .summary-grid{grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
-  .sum-card{padding:8px 6px;}
-  .sum-icon{font-size:14px;}
-  .sum-count{font-size:18px;}
+  /* Summary cards */
+  .summary-grid{grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
+  .sum-card{padding:8px 4px;border-radius:8px;}
+  .sum-icon{font-size:15px;}
+  .sum-count{font-size:20px;}
   .sum-label{font-size:8px;}
   .sum-hours{font-size:9px;}
 
-  /* ── Calendar: total row ── */
-  .total-row{padding:9px 11px;gap:7px;border-radius:8px;margin-bottom:10px;}
+  /* Total row */
+  .total-row{padding:9px 10px;gap:6px;border-radius:8px;margin-bottom:10px;}
   .tr-label{font-size:11px;}
-  .total-chip{font-size:11px;padding:3px 9px;}
+  .total-chip{font-size:11px;padding:3px 8px;}
 
-  /* ── Calendar: apply strip ── */
-  /* hidden on mobile, replaced by mob-bottom-bar */
+  /* Apply strip — hidden, FAB handles it */
+  .apply-strip{display:none;}
 
-  /* ── Comparison ── */
-  .cmp-card{padding:14px;}
-  .cmp-card .cc-main{font-size:18px;}
-  .diff-badge{font-size:12px;padding:4px 10px;}
+  /* ────────────────────────────────
+     SALARY VIEW
+  ──────────────────────────────── */
+  /* Tables: make scrollable */
+  .dt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;}
+  .dt{font-size:12px;min-width:480px;}
+  .dt th,.dt td{padding:8px 9px;}
+  .dt th:first-child,.dt td:first-child{font-size:12px;}
 
-  /* ── Modals: full-width on mobile ── */
+  /* Bar rows */
+  .bar-hdr{font-size:12px;}
+  .bar-hdr span:last-child{font-size:11px;}
+
+  /* Row detail */
+  .rd{padding:10px 0;font-size:12px;}
+  .rd .rr{font-size:12px;}
+
+  /* Gauge section */
+  .gsec{padding:12px;border-radius:10px;margin-top:14px;}
+  .gsec-title{font-size:12px;margin-bottom:10px;}
+
+  /* ────────────────────────────────
+     MODALS
+  ──────────────────────────────── */
   .modal-overlay{padding:0;align-items:flex-end;}
-  .modal-box{border-radius:18px 18px 0 0;max-height:92vh;max-width:100%;}
+  .modal-box{border-radius:18px 18px 0 0;max-height:90vh;max-width:100%;}
   .modal-header{padding:14px 16px;}
-  .modal-body{padding:14px 16px;}
-  .note-textarea{font-size:14px;}/* bigger for mobile keyboard */
-  .note-actions .btn{flex:1;justify-content:center;}/* full-width buttons */
+  .modal-body{padding:12px 14px;}
+  .note-textarea{font-size:15px;min-height:80px;}
+  .note-actions{gap:6px;}
+  .note-actions .btn{flex:1;justify-content:center;padding:10px;}
 
-  /* ── Prev month modal: smaller cells ── */
+  /* Prev month modal */
+  .pv-emp-tabs{margin-bottom:10px;}
   .pv-cal-grid{gap:2px;}
-  .pv-day{min-height:38px;padding:4px 2px 2px;border-radius:6px;}
+  .pv-day{min-height:36px;padding:4px 2px 2px;border-radius:6px;}
   .pv-num{font-size:11px;}
   .pv-icon{font-size:11px;}
   .pv-lunar{display:none;}
-  .pv-summary{grid-template-columns:repeat(3,1fr);gap:5px;}
+  .pv-summary{grid-template-columns:repeat(3,1fr);gap:4px;}
+}
 
-  /* ── Tables: horizontal scroll ── */
-  .dt{font-size:12px;}
-  .dt th,.dt td{padding:7px 8px;}
-  .dt th:first-child,.dt td:first-child{font-size:12px;}
-
-  /* ── Bar rows ── */
-  .bar-hdr{font-size:12px;}
-
-  /* ── Row detail ── */
-  .rd{padding:9px 0;font-size:12px;}
-
-  /* ── Gauge section ── */
-  .gsec{padding:14px;border-radius:11px;}
-  .gsec-title{font-size:12px;}
+/* ── Mobile bottom bar ── */
+.mob-bottom-bar{display:none;}
+@media(max-width:640px){
+  .mob-bottom-bar{
+    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top,var(--bg) 55%,transparent);
+    gap:8px;align-items:center;
+  }
+  .mob-bottom-bar .btn{flex:1;justify-content:center;padding:12px 8px;font-size:13px;font-weight:600;}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE — SMALL MOBILE (≤400px)
+   RESPONSIVE — SMALL MOBILE (≤390px)
 ═══════════════════════════════════════════════════════════════ */
-@media(max-width:400px){
-  .summary-grid{grid-template-columns:repeat(3,1fr);}
-  .day-cell{min-height:42px;}
-  .mode-btn{padding:8px 4px;font-size:10px;}
+@media(max-width:390px){
+  body{padding:8px 6px calc(72px + env(safe-area-inset-bottom));}
+  .brand-name{font-size:13px;}
+  .mode-btn{padding:9px 2px;}
+  .mode-btn-label{font-size:8px;}
+  .day-cell{min-height:44px;}
+  .day-num{font-size:12px;}
+  .hero-val{font-size:20px;}
+  .mc-val{font-size:13px;}
+  .g3{grid-template-columns:1fr 1fr;}
   .mg3{grid-template-columns:1fr 1fr;}
-  .hero-val{font-size:22px;}
+  .summary-grid{gap:4px;}
+  .sum-count{font-size:17px;}
 }
 
-@media print{.btn,.mode-bar,.emp-switcher,.inner-tabs,.toast,.cal-header-actions{display:none!important;}}
+@media print{.btn,.mode-bar,.emp-switcher,.inner-tabs,.toast,.cal-header-actions,.mob-bottom-bar{display:none!important;}}
 </style>
 </head>
 <body>
@@ -597,7 +618,7 @@ svg.donut{transform:rotate(-90deg);}
   <button class="mode-btn mcal active" id="modeBtn0" onclick="switchMode(0,this)">📅 <span class="mode-btn-label">Lịch Ca</span></button>
   <button class="mode-btn m0" id="modeBtn1" onclick="switchMode(1,this)">👤 <span class="mode-btn-label">Bảo Trì</span></button>
   <button class="mode-btn m1" id="modeBtn2" onclick="switchMode(2,this)">👤 <span class="mode-btn-label">Đan Lưới</span></button>
-  <button class="mode-btn m2" id="modeBtn3" onclick="switchMode(3,this)">⚖️ <span class="mode-btn-label">So sánh</span></button>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -746,7 +767,7 @@ svg.donut{transform:rotate(-90deg);}
   </div>
   <div class="ipanel" id="ip0-2">
     <div class="stitle e0">Hệ số & Giờ làm</div>
-    <div style="overflow-x:auto;">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <table class="dt"><thead><tr><th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th></tr></thead><tbody id="e0_htable"></tbody></table>
     </div>
     <div class="stitle e0" style="margin-top:18px;">Chi tiết phụ cấp</div><div id="e0_pcdetail"></div>
@@ -851,7 +872,7 @@ svg.donut{transform:rotate(-90deg);}
   </div>
   <div class="ipanel" id="ip1-2">
     <div class="stitle e1">Hệ số & Giờ làm</div>
-    <div style="overflow-x:auto;">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <table class="dt"><thead><tr><th>Loại ca</th><th>Hệ số</th><th>Ngày</th><th>Giờ/ca</th><th>Tổng giờ</th><th>Đơn giá/h</th><th>Thành tiền</th></tr></thead><tbody id="e1_htable"></tbody></table>
     </div>
     <div class="stitle e1" style="margin-top:18px;">Chi tiết phụ cấp</div><div id="e1_pcdetail"></div>
@@ -892,30 +913,6 @@ svg.donut{transform:rotate(-90deg);}
   </div>
 </div><!-- /view2 -->
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- VIEW 3: SO SÁNH -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div class="view" id="view3">
-  <div class="stitle cmp">Tổng quan song song</div>
-  <div class="cmp-grid">
-    <div class="cmp-card e0"><div class="cc-name">👤 <span id="cmp_n0">Nguyễn Văn A</span> · <span id="cmp_d0">Bảo Trì</span></div><div class="cc-main" id="cmp_tn0">0đ</div><div class="cc-sub">Lương thực nhận</div></div>
-    <div class="cmp-card e1"><div class="cc-name">👤 <span id="cmp_n1">Nguyễn Thị B</span> · <span id="cmp_d1">Đan lưới</span></div><div class="cc-main" id="cmp_tn1">0đ</div><div class="cc-sub">Lương thực nhận</div></div>
-  </div>
-  <div style="margin:18px 0;padding:16px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div style="font-size:13px;color:var(--text2);">Chênh lệch lương thực nhận</div>
-    <div id="cmp_diff" class="diff-badge pos">+0đ</div>
-  </div>
-  <div id="cmp_vsbars"></div>
-  <div class="stitle cmp" style="margin-top:22px;">So sánh chi tiết</div>
-  <div style="overflow-x:auto;">
-    <table class="dt" id="cmpTable">
-      <thead><tr><th>Chỉ tiêu</th><th style="color:var(--e0);" id="cmpH0">Bảo Trì</th><th style="color:var(--e1);" id="cmpH1">Đan Lưới</th><th>Chênh lệch</th></tr></thead>
-      <tbody id="cmpBody"></tbody>
-    </table>
-  </div>
-  <div class="stitle cmp" style="margin-top:22px;">Giờ làm theo loại ca</div>
-  <div id="cmp_hours"></div>
-</div><!-- /view3 -->
 
 <!-- ── FOOTER ── -->
 <div class="footer">
@@ -1107,7 +1104,6 @@ function recalc(e) {
   updateMeasure(e);
   updateSim(e);
   updateFooter();
-  renderComparison();
 }
 
 function updateMeasure(e) {
@@ -1144,27 +1140,6 @@ function updateSim(e) {
   const v1ca=c.r*(8*1.0+4*1.5);
   const nd=Math.ceil(gap/v1ca);
   $(`e${e}_sim`).innerHTML=`<div style="color:var(--text)">Cần thêm <strong style="color:var(--accent)">${nd} ngày ca ngày</strong> (~${nd*12}h) để đạt <strong style="color:var(--amber)">${FMT(target)}</strong></div><div style="margin-top:6px;color:var(--text2)">Còn thiếu: <span style="color:var(--red)">${FMT(gap)}</span></div><div style="margin-top:4px;color:var(--text2)">Giá trị 1 ca ngày (8h+4hOT): <span style="color:var(--green)">${FMT(Math.round(v1ca))}</span></div>`;
-}
-
-function renderComparison() {
-  const c0=getCalc(0), c1=getCalc(1);
-  const n0=$('e0_name')?.value||'Bảo Trì', n1=$('e1_name')?.value||'Đan Lưới';
-  const d0=$('e0_dept')?.value||'', d1=$('e1_dept')?.value||'';
-  $('cmp_n0').textContent=n0; $('cmp_d0').textContent=d0;
-  $('cmp_n1').textContent=n1; $('cmp_d1').textContent=d1;
-  $('cmp_tn0').textContent=FMT(c0.tn);
-  $('cmp_tn1').textContent=FMT(c1.tn);
-  $('cmpH0').textContent=n0.split(' ').pop();
-  $('cmpH1').textContent=n1.split(' ').pop();
-  const diff=c0.tn-c1.tn;
-  $('cmp_diff').textContent=(diff>=0?'+':'')+FMT(diff)+' ('+n0.split(' ').pop()+' - '+n1.split(' ').pop()+')';
-  $('cmp_diff').className='diff-badge '+(diff>=0?'pos':'neg');
-  const vss=[{l:'Lương theo giờ',a:c0.gio,b:c1.gio},{l:'Phụ cấp',a:c0.pc,b:c1.pc},{l:'Khấu trừ',a:c0.kt,b:c1.kt},{l:'Thực nhận',a:c0.tn,b:c1.tn}];
-  $('cmp_vsbars').innerHTML=vss.map(({l,a,b})=>{const tot=(a+b)||1,pa=(a/tot)*100,pb=(b/tot)*100;return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;"><span style="color:var(--e0);font-family:'JetBrains Mono',monospace;">${FMT(a)}</span><span style="font-weight:600;color:var(--text);">${l}</span><span style="color:var(--e1);font-family:'JetBrains Mono',monospace;">${FMT(b)}</span></div><div class="vs-track"><div class="vs-a" style="width:${pa}%;background:linear-gradient(90deg,#1c4a8a,#388bfd);"></div><div class="vs-b" style="width:${pb}%;background:linear-gradient(90deg,#9b59f8,#bc8cff);"></div></div></div>`;}).join('');
-  const rows=[['Đơn giá/giờ cơ bản',c0.r,c1.r],['Tổng giờ làm',c0.totalH,c1.totalH,'h'],['Lương theo giờ',c0.gio,c1.gio],['Tổng phụ cấp',c0.pc,c1.pc],['Tổng lương gộp',c0.tong,c1.tong],['BHXH khấu trừ',c0.bhxh,c1.bhxh],['Phí công đoàn',Nv('e0_cd'),Nv('e1_cd')],['Thuế TNCN',Nv('e0_tncn'),Nv('e1_tncn')],['Tổng khấu trừ',c0.kt,c1.kt],['Lương thực nhận',c0.tn,c1.tn]];
-  $('cmpBody').innerHTML=rows.map(([l,a,b,u])=>{const d=a-b;const fmt=u?`${a}${u}`:FMT(a);const fmt2=u?`${b}${u}`:FMT(b);const fmtd=u?`${d>0?'+':''}${d}${u}`:(d>=0?'+':'')+FMT(d);const col=d>0?'var(--green)':d<0?'var(--red)':'var(--text2)';return `<tr><td>${l}</td><td style="color:var(--e0);">${fmt}</td><td style="color:var(--e1);">${fmt2}</td><td style="color:${col};font-weight:600;">${fmtd}</td></tr>`;}).join('');
-  const hrows=[['Ca ngày thường',c0.hD+'h',c1.hD+'h'],['Ca đêm',c0.hN+'h',c1.hN+'h'],['OT ca ngày',c0.hOD+'h',c1.hOD+'h'],['OT ca đêm',c0.hON+'h',c1.hON+'h'],['Giãn ca ngày',c0.hGN+'h',c1.hGN+'h'],['Giãn ca đêm',c0.hGE+'h',c1.hGE+'h'],['Nghỉ có phép',c0.hLv+'h',c1.hLv+'h']];
-  $('cmp_hours').innerHTML=`<div style="overflow-x:auto"><table class="dt"><thead><tr><th>Loại ca</th><th style="color:var(--e0)">${n0.split(' ').pop()}</th><th style="color:var(--e1)">${n1.split(' ').pop()}</th></tr></thead><tbody>${hrows.map(([l,a,b])=>`<tr><td>${l}</td><td style="color:var(--e0);font-weight:500">${a}</td><td style="color:var(--e1);font-weight:500">${b}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
 function updateFooter() {
