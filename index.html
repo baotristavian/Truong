@@ -586,6 +586,7 @@ svg.donut{transform:rotate(-90deg);}
   </div>
   <div class="nav-actions">
     <span class="sync-badge" id="syncBadge"><span class="sync-dot"></span>Đã đồng bộ</span>
+    <button class="btn btn-ghost" onclick="openSyncModal()">☁️ Sheet</button>
     <button class="btn btn-ghost nav-print" onclick="window.print()">🖨️ In</button>
     <button class="btn btn-danger" onclick="handleResetAll()">↺ Reset</button>
     <button class="btn btn-primary" id="saveBtn" onclick="handleSave()">💾 Lưu</button>
@@ -965,6 +966,48 @@ svg.donut{transform:rotate(-90deg);}
 
 <div class="toast" id="toast">✅ Đã lưu thành công!</div>
 
+<!-- ── GOOGLE SHEET SYNC MODAL ── -->
+<div class="modal-overlay" id="syncModal" style="display:none;" onclick="if(event.target===this)closeSyncModal()">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">☁️ Đồng bộ Google Sheet</div>
+      <button class="modal-close" onclick="closeSyncModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-hint" style="margin-bottom:12px;line-height:1.6;">
+        Dán link <b>Web App URL</b> của Google Apps Script (xem hướng dẫn bên dưới). Sau khi cài đặt, mỗi khi <b>bất kỳ ai đánh dấu ca, sửa số liệu</b> trên Lịch ca hoặc nhấn Lưu, hệ thống sẽ <b>tự động gửi ngay</b> số <b>ca ngày, ca đêm, tăng ca ngày, tăng ca đêm, nghỉ phép</b> của 2 nhân viên (tháng hiện tại) lên Google Sheet. Ngoài ra mỗi ngày cũng tự kiểm tra đồng bộ lại 1 lần khi mở app.
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Web App URL</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="syncUrlInput" placeholder="https://script.google.com/macros/s/XXXX/exec" style="flex:1;"/>
+          <button class="btn btn-ghost" id="syncEditBtn" style="display:none;white-space:nowrap;" onclick="unlockSyncUrl()">🔒 Sửa</button>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin-bottom:14px;cursor:pointer;">
+        <input type="checkbox" id="syncAutoToggle" style="width:16px;height:16px;" checked/>
+        Tự động đồng bộ 1 lần/ngày khi mở app
+      </label>
+      <div class="field-hint" id="syncLastInfo" style="margin-bottom:14px;">Chưa đồng bộ lần nào</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="syncSaveBtn" onclick="saveSyncSettings()">💾 Lưu cài đặt</button>
+        <button class="btn btn-success" onclick="syncToSheet(true)">☁️ Đồng bộ ngay</button>
+      </div>
+      <details style="margin-top:16px;">
+        <summary style="cursor:pointer;font-size:12px;color:var(--text2);">📖 Hướng dẫn lấy Web App URL</summary>
+        <ol style="font-size:12px;color:var(--text2);line-height:1.8;margin:10px 0 0 18px;">
+          <li>Mở Google Sheet bạn muốn lưu dữ liệu → menu <b>Tiện ích mở rộng → Apps Script</b>.</li>
+          <li>Xóa code mẫu, dán nội dung file <b>Code.gs</b> được cung cấp kèm theo.</li>
+          <li>Bấm <b>Triển khai (Deploy) → Tùy chọn triển khai mới (New deployment)</b>.</li>
+          <li>Chọn loại <b>Web app</b>. Mục "Người thực thi" (Execute as): <b>Tôi (Me)</b>. Mục "Ai có quyền truy cập" (Who has access): <b>Bất kỳ ai (Anyone)</b>.</li>
+          <li>Bấm <b>Triển khai</b>, cấp quyền truy cập, sau đó copy link <b>Web app URL</b> dạng <code>.../exec</code> và dán vào ô bên trên.</li>
+          <li>Bấm <b>Đồng bộ ngay</b> để kiểm tra. Mở Google Sheet sẽ thấy sheet "DuLieuCa" tự tạo với dữ liệu.</li>
+        </ol>
+      </details>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════════════════════
 // SHARED UTILITIES
@@ -976,9 +1019,9 @@ const Nv = id => Number($(id)?.value)||0;
 function showToast(msg, type='success') {
   const t = $('toast');
   t.textContent = msg;
-  t.style.background = type==='sync' ? 'var(--blue-dim)' : 'var(--green-bg)';
-  t.style.borderColor = type==='sync' ? 'var(--blue)' : 'var(--green)';
-  t.style.color = type==='sync' ? 'var(--accent)' : 'var(--green)';
+  if(type==='sync'){ t.style.background='var(--blue-dim)'; t.style.borderColor='var(--blue)'; t.style.color='var(--accent)'; }
+  else if(type==='error'){ t.style.background='var(--red-bg)'; t.style.borderColor='var(--red)'; t.style.color='var(--red)'; }
+  else { t.style.background='var(--green-bg)'; t.style.borderColor='var(--green)'; t.style.color='var(--green)'; }
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 2400);
 }
@@ -1000,6 +1043,7 @@ function flashSyncBadge(msg='Đang đồng bộ...') {
 // ════════════════════════════════════════════════════════════════
 const LUONG_KEY = 'luong_data_v1';   // salary data
 const CAL_KEY   = 'demca_v2';        // calendar data
+const SYNC_KEY  = 'gsheet_sync_cfg_v1'; // google sheet sync config
 
 // ════════════════════════════════════════════════════════════════
 // SALARY MODULE
@@ -1230,6 +1274,7 @@ function handleSave() {
     btn.textContent='✅ Đã lưu'; btn.className='btn btn-success';
     showToast('💾 Đã lưu dữ liệu lương!');
     setTimeout(()=>{ btn.textContent='💾 Lưu'; btn.className='btn btn-primary'; },2500);
+    scheduleSync();
   } else {
     btn.textContent='❌ Lỗi lưu'; btn.className='btn btn-danger';
     setTimeout(()=>{ btn.textContent='💾 Lưu'; btn.className='btn btn-primary'; },2500);
@@ -1355,6 +1400,8 @@ function calMarkDay(day,type){
   calUpdateSummary();
   // Real-time push to salary fields
   calPushToSalary(calEmp);
+  // Đồng bộ lên Google Sheet (debounce)
+  scheduleSync();
 }
 
 function calUpdateCell(day){
@@ -1479,6 +1526,136 @@ function calApply(){
   if(btn) switchMode(calEmp+1,btn);
 }
 
+// ════════════════════════════════════════════════════════════════
+// GOOGLE SHEET SYNC
+// ════════════════════════════════════════════════════════════════
+let syncCfg = {url:'', autoEnabled:true, lastSync:null};
+
+// Mã bảo vệ để thay đổi link Web App URL — đổi mã này trong code nếu cần
+const SYNC_PIN = '2468';
+
+function loadSyncCfg(){
+  try{
+    const raw=localStorage.getItem(SYNC_KEY);
+    if(raw) syncCfg=Object.assign(syncCfg, JSON.parse(raw));
+  }catch(e){}
+}
+
+function saveSyncCfgToStorage(){
+  try{ localStorage.setItem(SYNC_KEY, JSON.stringify(syncCfg)); }catch(e){}
+}
+
+function openSyncModal(){
+  const urlInput=$('syncUrlInput');
+  urlInput.value = syncCfg.url || '';
+  const locked = !!syncCfg.url;
+  urlInput.readOnly = locked;
+  urlInput.style.opacity = locked ? '0.6' : '1';
+  $('syncEditBtn').style.display = locked ? 'inline-flex' : 'none';
+  $('syncSaveBtn').style.display = locked ? 'none' : 'inline-flex';
+  $('syncAutoToggle').checked = syncCfg.autoEnabled !== false;
+  updateSyncStatusText();
+  $('syncModal').style.display='flex';
+}
+
+function unlockSyncUrl(){
+  const pin=prompt('Nhập mã để thay đổi link Web App URL:');
+  if(pin===null) return;
+  if(pin!==SYNC_PIN){ showToast('❌ Mã không đúng', 'error'); return; }
+  $('syncUrlInput').readOnly=false;
+  $('syncUrlInput').style.opacity='1';
+  $('syncEditBtn').style.display='none';
+  $('syncSaveBtn').style.display='inline-flex';
+  showToast('🔓 Đã mở khóa, có thể sửa link');
+}
+
+function closeSyncModal(){
+  $('syncModal').style.display='none';
+}
+
+function updateSyncStatusText(){
+  const el=$('syncLastInfo');
+  if(!el) return;
+  el.textContent = syncCfg.lastSync
+    ? `✅ Lần đồng bộ gần nhất: ${new Date(syncCfg.lastSync).toLocaleString('vi-VN')}`
+    : 'Chưa đồng bộ lần nào';
+}
+
+function saveSyncSettings(){
+  syncCfg.url = $('syncUrlInput').value.trim();
+  syncCfg.autoEnabled = $('syncAutoToggle').checked;
+  saveSyncCfgToStorage();
+  showToast('💾 Đã lưu cài đặt đồng bộ');
+  closeSyncModal();
+  // Đồng bộ ngay lần đầu sau khi cài đặt
+  if(syncCfg.url) syncToSheet(false);
+}
+
+function buildSyncPayload(){
+  const monthKey = calDateKey(calYear,calMonth,1).slice(0,7);
+  const employees=[0,1].map(e=>{
+    const counts=calGetCounts(e,calYear,calMonth);
+    const totalDays=Object.values(counts).reduce((a,b)=>a+b,0);
+    const totalH=counts.day*8+counts.night*8+counts.gcn*12+counts.gcd*12+counts.leave*12;
+    return {
+      emp: e,
+      name: e===0?'Bảo Trì':'Đan Lưới',
+      month: monthKey,
+      day: counts.day,
+      night: counts.night,
+      gcn: counts.gcn,
+      gcd: counts.gcd,
+      leave: counts.leave,
+      totalDays,
+      totalHours: totalH
+    };
+  });
+  return {
+    month: monthKey,
+    updatedAt: new Date().toISOString(),
+    employees
+  };
+}
+
+async function syncToSheet(manual=false){
+  if(!syncCfg.url){
+    if(manual) showToast('⚠️ Chưa cài đặt link Google Sheet', 'error');
+    return;
+  }
+  flashSyncBadge('Đang đồng bộ Google Sheet...');
+  try{
+    const payload=buildSyncPayload();
+    await fetch(syncCfg.url, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    syncCfg.lastSync = Date.now();
+    saveSyncCfgToStorage();
+    updateSyncStatusText();
+    if(manual) showToast('☁️ Đã đồng bộ lên Google Sheet', 'sync');
+  }catch(e){
+    console.error(e);
+    if(manual) showToast('❌ Lỗi đồng bộ: '+e.message, 'error');
+  }
+}
+
+function autoSyncCheck(){
+  if(!syncCfg.url || syncCfg.autoEnabled===false) return;
+  const today=new Date().toISOString().slice(0,10);
+  const lastDay = syncCfg.lastSync ? new Date(syncCfg.lastSync).toISOString().slice(0,10) : null;
+  if(lastDay!==today) syncToSheet(false);
+}
+
+// Đồng bộ ngay (có debounce) mỗi khi dữ liệu ca/lương thay đổi
+let _syncDebounceTimer=null;
+function scheduleSync(){
+  if(!syncCfg.url || syncCfg.autoEnabled===false) return;
+  clearTimeout(_syncDebounceTimer);
+  _syncDebounceTimer=setTimeout(()=>syncToSheet(false), 2500);
+}
+
 function calClearMonth(){
   if(!confirm(`Xóa toàn bộ ca tháng này (${VI_MONTHS[calMonth]} ${calYear})?`)) return;
   const prefix=calDateKey(calYear,calMonth,1).slice(0,7);
@@ -1487,6 +1664,7 @@ function calClearMonth(){
   calRenderCalendar();
   calPushToSalary(calEmp);
   showToast('🗑 Đã xóa ca tháng này');
+  scheduleSync();
 }
 
 function calClearAll(){
@@ -1496,6 +1674,7 @@ function calClearAll(){
   calRenderCalendar();
   calPushToSalary(0); calPushToSalary(1);
   showToast('↺ Đã xóa toàn bộ dữ liệu ca');
+  scheduleSync();
 }
 
 // ── NOTE FUNCTIONS ────────────────────────────────────────────────
@@ -1787,6 +1966,12 @@ const hadSaved = loadSalaryData();
     setField(`e${e}_leave`, counts.leave);
   });
 })();
+
+// ── Đồng bộ Google Sheet ──────────────────────────────────────────
+loadSyncCfg();
+autoSyncCheck();
+setInterval(autoSyncCheck, 60*60*1000); // kiểm tra lại mỗi giờ
+
 </script>
 </body>
 </html>
