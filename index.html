@@ -671,7 +671,7 @@ svg.donut{transform:rotate(-90deg);}
     <button class="stype-btn s-gcn" id="stype_gcn" onclick="calSelectType('gcn')">⚡ Giãn ca ngày</button>
     <button class="stype-btn s-gcd" id="stype_gcd" onclick="calSelectType('gcd')">⚡ Giãn ca đêm</button>
     <button class="stype-btn s-leave" id="stype_leave" onclick="calSelectType('leave')">🌿 Nghỉ phép</button>
-    <button class="stype-btn s-holiday" id="stype_holiday" onclick="calSelectType('holiday')">🎌 Nghỉ lễ</button>
+    <button class="stype-btn s-holiday" id="stype_holiday" onclick="calSelectType('holiday')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" width="18" height="12" style="vertical-align:middle;border-radius:2px;margin-right:4px;"><rect width="30" height="20" fill="#DA251D"/><polygon points="15,3 16.76,8.43 22.43,8.43 17.84,11.57 19.6,17 15,13.86 10.4,17 12.16,11.57 7.57,8.43 13.24,8.43" fill="#FFFF00"/></svg> Nghỉ lễ</button>
   </div>
 
   <div class="drag-hint">💡 Nhấn 1 ngày hoặc <strong style="color:var(--text)">kéo qua nhiều ngày</strong> để đánh dấu · <strong style="color:var(--amber)">Nhấn phải</strong> để ghi chú</div>
@@ -688,7 +688,7 @@ svg.donut{transform:rotate(-90deg);}
     <div class="leg-item"><div class="leg-dot" style="background:var(--gcn-bg);border-color:var(--gcn-border);"></div>⚡ Giãn ca ngày (12h)</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--gcd-bg);border-color:var(--gcd-border);"></div>⚡ Giãn ca đêm (12h)</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--leave-bg);border-color:var(--leave-border);"></div>🌿 Nghỉ phép (12h)</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--holiday-bg);border-color:var(--holiday-border);"></div>🎌 Nghỉ lễ (12h)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--holiday-bg);border-color:var(--holiday-border);"></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" width="16" height="11" style="vertical-align:middle;border-radius:2px;margin-right:3px;"><rect width="30" height="20" fill="#DA251D"/><polygon points="15,3 16.76,8.43 22.43,8.43 17.84,11.57 19.6,17 15,13.86 10.4,17 12.16,11.57 7.57,8.43 13.24,8.43" fill="#FFFF00"/></svg> Nghỉ lễ (12h)</div>
     <div class="leg-item"><div class="leg-dot" style="background:var(--bg3);border-color:var(--border2);"></div>● Hôm nay</div>
   </div>
 
@@ -1265,7 +1265,7 @@ const SHIFT_CFG={
   gcn:  {label:'Giãn ca ngày',icon:'⚡',hours:12},
   gcd:  {label:'Giãn ca đêm', icon:'⚡',hours:12},
   leave:{label:'Nghỉ phép', icon:'🌿',hours:12},
-  holiday:{label:'Nghỉ lễ', icon:'🎌',hours:12},
+  holiday:{label:'Nghỉ lễ', icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" width="22" height="15" style="vertical-align:middle;border-radius:2px;display:inline-block;"><rect width="30" height="20" fill="#DA251D"/><polygon points="15,3 16.76,8.43 22.43,8.43 17.84,11.57 19.6,17 15,13.86 10.4,17 12.16,11.57 7.57,8.43 13.24,8.43" fill="#FFFF00"/></svg>',hours:12},
 };
 
 const calToday=new Date();
