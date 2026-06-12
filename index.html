@@ -5,6 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Hệ Thống Tính Lương</title>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+<!-- ══ FIREBASE SDK ══ -->
+<script type="module">
+// ════════════════════════════════════════════════════════════════
+// FIREBASE CONFIG — Điền thông tin project của bạn vào đây
+// Lấy tại: Firebase Console → Project Settings → Your apps → SDK setup
+// ════════════════════════════════════════════════════════════════
+import { initializeApp }            from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, set, get,
+         onValue, off }             from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyALIQ5D8j0Lhf9t39CzEG4XUlHK94LrZuU",
+  authDomain:        "stavianmp.firebaseapp.com",
+  databaseURL:       "https://stavianmp-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "stavianmp",
+  storageBucket:     "stavianmp.firebasestorage.app",
+  messagingSenderId: "805388463973",
+  appId:             "1:805388463973:web:a9fa84635e5d3ae7f8bb8c"
+};
+
+window._fb = { ready:false };
+
+try {
+  if (FIREBASE_CONFIG.apiKey !== 'PASTE_API_KEY_HERE') {
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db  = getDatabase(app);
+    window._fb = { ready:true, db, ref, set, get, onValue, off };
+    console.log('[Firebase] Đã kết nối');
+  } else {
+    console.warn('[Firebase] Chưa cấu hình — chỉ dùng localStorage');
+  }
+} catch(e) {
+  console.error('[Firebase] Lỗi khởi tạo:', e);
+}
+
+// Báo cho main script biết Firebase đã sẵn sàng (hoặc thất bại)
+window.dispatchEvent(new CustomEvent('firebase-ready'));
+</script>
 <style>
 :root {
   --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
@@ -339,6 +378,20 @@ svg.donut{transform:rotate(-90deg);}
 /* ── NOTE DOT ── */
 .day-note-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);position:absolute;bottom:4px;right:4px;pointer-events:none;}
 
+/* ── CLOUD SYNC MODAL ── */
+.nav-sync-label{font-size:11px;}
+.cloud-id-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin:10px 0;}
+.cloud-id-box code{flex:1;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);word-break:break-all;}
+.cloud-status{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:12px;}
+.cloud-status.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.cloud-status.off{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);}
+.cloud-section{margin-bottom:18px;}
+.cloud-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px;}
+.cloud-section-desc{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
+.cloud-restore-row{display:flex;gap:8px;}
+.cloud-restore-row input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;}
+.cloud-restore-row input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--glow);}
+
 /* ── Mobile bottom bar — defined in responsive section below ── */
 
 /* ── MODAL OVERLAY ── */
@@ -453,6 +506,7 @@ svg.donut{transform:rotate(-90deg);}
   .brand-sub{font-size:10px;margin-top:1px;}
   .nav-actions{gap:4px;margin-left:auto;flex-shrink:0;}
   .nav-print{display:none;}
+  .nav-sync-label{display:none;}
   .sync-badge{display:none;}/* ocupa espaço — escondido em mobile */
   .btn{padding:7px 11px;font-size:12px;gap:4px;}
   #saveBtn,button.btn-danger{padding:7px 10px;font-size:11px;}
@@ -654,6 +708,7 @@ svg.donut{transform:rotate(-90deg);}
   <div class="nav-actions">
     <span class="sync-badge" id="syncBadge"><span class="sync-dot"></span>Đã đồng bộ</span>
     <button class="btn btn-ghost nav-print" onclick="window.print()">🖨️ In</button>
+    <button class="btn btn-ghost" onclick="openCloudModal()" title="Sao lưu / Khôi phục đám mây" style="color:#58a6ff;border-color:#1c3d5e;">☁️ <span class="nav-sync-label">Đồng bộ</span></button>
     <button class="btn btn-danger" onclick="handleResetAll()">↺ Reset</button>
     <button class="btn btn-primary" id="saveBtn" onclick="handleSave()">💾 Lưu</button>
   </div>
@@ -1032,6 +1087,43 @@ svg.donut{transform:rotate(-90deg);}
 
 <div class="toast" id="toast">✅ Đã lưu thành công!</div>
 
+<!-- ── CLOUD SYNC MODAL ── -->
+<div class="modal-overlay" id="cloudModal" style="display:none;" onclick="if(event.target===this)closeCloudModal()">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">☁️ Sao lưu / Khôi phục</div>
+      <button class="modal-close" onclick="closeCloudModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cloud-status off" id="cloudStatus">⚪ Đang kiểm tra kết nối...</div>
+
+      <div class="cloud-section">
+        <div class="cloud-section-title">Mã đồng bộ của bạn</div>
+        <div class="cloud-section-desc">Dữ liệu (lịch ca, lương, ghi chú) tự động lưu lên đám mây theo mã này. Đặt mã dễ nhớ (VD: tên, số điện thoại...) để dùng lại trên thiết bị khác.</div>
+        <div class="cloud-restore-row">
+          <input type="text" id="cloudUserId" placeholder="VD: nguyenvana hoặc 0901234567" onkeydown="if(event.key==='Enter')applyCloudId()"/>
+          <button class="btn btn-ghost" style="font-size:12px;padding:9px 12px;" onclick="copyCloudId()">📋 Copy</button>
+          <button class="btn btn-primary" style="font-size:12px;" onclick="applyCloudId()">✅ Dùng mã này</button>
+        </div>
+        <div class="field-hint" style="margin-top:6px;">Mã chỉ dùng chữ, số, gạch dưới/gạch ngang — không dấu, không khoảng trắng.</div>
+      </div>
+
+      <div class="cloud-section">
+        <div class="cloud-section-title">Khôi phục từ thiết bị khác</div>
+        <div class="cloud-section-desc">Nhập mã đã dùng trên thiết bị khác vào ô trên rồi bấm <strong>"Dùng mã này"</strong> để tải dữ liệu về máy này. <strong style="color:var(--red);">Lưu ý: sẽ ghi đè dữ liệu hiện tại trên máy này.</strong></div>
+      </div>
+
+      <div class="cloud-section" style="margin-bottom:0;">
+        <div class="cloud-section-title">Đồng bộ thủ công</div>
+        <div class="cloud-restore-row">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:12px;" onclick="cloudPushAll()">⬆ Tải lên đám mây</button>
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:12px;" onclick="cloudPullAll()">⬇ Tải về từ đám mây</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════════════════════
 // SHARED UTILITIES
@@ -1067,6 +1159,226 @@ function flashSyncBadge(msg='Đang đồng bộ...') {
 // ════════════════════════════════════════════════════════════════
 const LUONG_KEY = 'luong_data_v1';   // salary data
 const CAL_KEY   = 'demca_v2';        // calendar data
+
+// ════════════════════════════════════════════════════════════════
+// CLOUD SYNC MODULE (Firebase) — mỗi thiết bị có 1 userId riêng
+// Dữ liệu lưu tại: /users/{userId}/{LUONG_KEY|CAL_KEY|CAL_KEY_notes|SNAPSHOT_KEY}
+// ════════════════════════════════════════════════════════════════
+const USER_ID_KEY = 'demca_userid_v1';
+const ALL_SYNC_KEYS = () => [LUONG_KEY, CAL_KEY, CAL_KEY+'_notes', SNAPSHOT_KEY];
+
+let cloudUserId = null;
+let _cloudPushTimer = null;
+let _cloudApplyingRemote = false; // true while writing remote→local (tránh loop)
+
+function getOrCreateUserId() {
+  let id = localStorage.getItem(USER_ID_KEY);
+  if (!id) {
+    id = 'u_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    localStorage.setItem(USER_ID_KEY, id);
+  }
+  return id;
+}
+
+// Chuẩn hóa mã: chỉ giữ chữ, số, _ và -, lowercase
+function sanitizeCode(raw) {
+  return (raw || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+}
+
+function cloudReady() {
+  return window._fb && window._fb.ready;
+}
+
+function cloudInit() {
+  cloudUserId = getOrCreateUserId();
+  const idEl = $('cloudUserId');
+  if (idEl) idEl.value = cloudUserId;
+  const statusEl = $('cloudStatus');
+
+  if (!cloudReady()) {
+    if (statusEl) { statusEl.className = 'cloud-status off'; statusEl.textContent = '⚪ Chưa cấu hình Firebase — chỉ lưu trên máy này (localStorage)'; }
+    return;
+  }
+  if (statusEl) { statusEl.className = 'cloud-status ok'; statusEl.textContent = '🟢 Đã kết nối — dữ liệu tự động đồng bộ theo mã: ' + cloudUserId; }
+
+  cloudAttachListeners();
+
+  // Lần đầu mở: nếu local có data nhưng cloud chưa có → đẩy lên
+  setTimeout(() => {
+    ALL_SYNC_KEYS().forEach(key => {
+      const local = localStorage.getItem(key);
+      if (!local) return;
+      const r = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key}`);
+      window._fb.get(r).then(snap => {
+        if (snap.val() === null || snap.val() === undefined) {
+          window._fb.set(r, JSON.parse(local)).catch(console.error);
+        }
+      }).catch(console.error);
+    });
+  }, 1500);
+}
+
+let _cloudListenerRefs = []; // để gỡ listener cũ khi đổi mã
+
+// Lắng nghe thay đổi từ cloud (đồng bộ giữa các thiết bị dùng cùng mã)
+function cloudAttachListeners() {
+  // Gỡ listener cũ (nếu đổi mã)
+  _cloudListenerRefs.forEach(({r, cb}) => window._fb.off(r, 'value', cb));
+  _cloudListenerRefs = [];
+
+  if (!cloudReady()) return;
+
+  ALL_SYNC_KEYS().forEach(key => {
+    const r = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key}`);
+    const cb = snap => {
+      const remote = snap.val();
+      if (remote === null || remote === undefined) return; // chưa có data trên cloud
+      const local = localStorage.getItem(key);
+      const remoteStr = JSON.stringify(remote);
+      if (local === remoteStr) return; // không đổi gì
+      _cloudApplyingRemote = true;
+      localStorage.setItem(key, remoteStr);
+      cloudReloadKey(key);
+      _cloudApplyingRemote = false;
+      flashSyncBadge('Đồng bộ từ đám mây...');
+    };
+    window._fb.onValue(r, cb);
+    _cloudListenerRefs.push({r, cb});
+  });
+}
+
+// Khi 1 key thay đổi trên local → đẩy lên cloud (debounce 800ms)
+function cloudPushKey(key) {
+  if (!cloudReady() || _cloudApplyingRemote) return;
+  clearTimeout(_cloudPushTimer);
+  _cloudPushTimer = setTimeout(() => {
+    const local = localStorage.getItem(key);
+    if (local === null) return;
+    const r = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key}`);
+    try {
+      window._fb.set(r, JSON.parse(local)).catch(console.error);
+    } catch(e) { console.error(e); }
+  }, 800);
+}
+
+// Sau khi nhận dữ liệu mới từ cloud cho 1 key → load lại vào biến JS + re-render UI
+function cloudReloadKey(key) {
+  if (key === CAL_KEY || key === CAL_KEY+'_notes') {
+    calLoadData();
+    if (activeMode === 0) calRenderCalendar();
+    calPushToSalary(0); calPushToSalary(1);
+  } else if (key === LUONG_KEY) {
+    loadSalaryData();
+  } else if (key === SNAPSHOT_KEY) {
+    // snapshot chỉ dùng khi mở modal "Theo dõi tháng" → không cần render ngay
+  }
+}
+
+// ── Modal điều khiển ──────────────────────────────────────────
+function openCloudModal() {
+  cloudInit();
+  $('cloudModal').style.display = 'flex';
+}
+function closeCloudModal() {
+  $('cloudModal').style.display = 'none';
+}
+
+function copyCloudId() {
+  const input = $('cloudUserId');
+  const val = input?.value || cloudUserId;
+  if (!val) return;
+  navigator.clipboard?.writeText(val).then(() => {
+    showToast('📋 Đã copy mã đồng bộ');
+  }).catch(() => {
+    input?.select();
+    showToast('📋 Đã chọn mã — nhấn Ctrl+C để copy');
+  });
+}
+
+// Đặt/đổi mã đồng bộ tùy chỉnh — tải dữ liệu từ cloud theo mã mới về
+function applyCloudId() {
+  const input = $('cloudUserId');
+  const newId = sanitizeCode(input.value);
+  if (newId.length < 3) {
+    showToast('❌ Mã quá ngắn — cần ít nhất 3 ký tự (chữ/số)');
+    return;
+  }
+  if (!cloudReady()) {
+    showToast('❌ Chưa kết nối Firebase — không thể đồng bộ');
+    return;
+  }
+  if (newId === cloudUserId) {
+    showToast('ℹ️ Mã này đang được sử dụng');
+    return;
+  }
+
+  const r = window._fb.ref(window._fb.db, `users/${newId}/${CAL_KEY}`);
+  window._fb.get(r).then(snap => {
+    const hasRemoteData = snap.val() !== null && snap.val() !== undefined;
+    const proceed = () => {
+      localStorage.setItem(USER_ID_KEY, newId);
+      cloudUserId = newId;
+      input.value = cloudUserId;
+      cloudAttachListeners();
+      const statusEl = $('cloudStatus');
+      if (statusEl) { statusEl.className = 'cloud-status ok'; statusEl.textContent = '🟢 Đã kết nối — dữ liệu tự động đồng bộ theo mã: ' + cloudUserId; }
+
+      if (hasRemoteData) {
+        cloudPullAll(() => {
+          showToast('✅ Đã tải dữ liệu của mã "' + newId + '" — đang tải lại trang');
+          setTimeout(() => location.reload(), 1200);
+        });
+      } else {
+        // Mã mới chưa có data trên cloud → đẩy data hiện tại lên
+        cloudPushAll();
+        showToast('✅ Đã đặt mã đồng bộ mới: ' + newId);
+      }
+    };
+
+    if (hasRemoteData) {
+      if (!confirm('Mã "' + newId + '" đã có dữ liệu trên đám mây. Tải về sẽ ghi đè dữ liệu hiện tại trên máy này. Tiếp tục?')) return;
+    }
+    proceed();
+  }).catch(err => {
+    console.error(err);
+    showToast('❌ Lỗi kết nối đám mây');
+  });
+}
+
+// Tải toàn bộ data hiện tại lên cloud (ghi đè cloud)
+function cloudPushAll() {
+  if (!cloudReady()) { showToast('❌ Chưa kết nối Firebase'); return; }
+  let count = 0;
+  ALL_SYNC_KEYS().forEach(key => {
+    const local = localStorage.getItem(key);
+    const r = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key}`);
+    const val = local ? JSON.parse(local) : null;
+    window._fb.set(r, val).then(()=>{ count++; if(count===ALL_SYNC_KEYS().length) showToast('⬆ Đã tải dữ liệu lên đám mây'); }).catch(console.error);
+  });
+}
+
+// Tải toàn bộ data từ cloud về (ghi đè local)
+function cloudPullAll(onDone) {
+  if (!cloudReady()) { showToast('❌ Chưa kết nối Firebase'); return; }
+  const keys = ALL_SYNC_KEYS();
+  let count = 0;
+  keys.forEach(key => {
+    const r = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key}`);
+    window._fb.get(r).then(snap => {
+      const val = snap.val();
+      _cloudApplyingRemote = true;
+      if (val !== null && val !== undefined) localStorage.setItem(key, JSON.stringify(val));
+      else localStorage.removeItem(key);
+      cloudReloadKey(key);
+      _cloudApplyingRemote = false;
+      count++;
+      if (count === keys.length) {
+        showToast('⬇ Đã tải dữ liệu từ đám mây');
+        if (onDone) onDone();
+      }
+    }).catch(console.error);
+  });
+}
 
 // ════════════════════════════════════════════════════════════════
 // LOCK / UNLOCK MODULE — bảo vệ lịch ca khỏi thao tác nhầm
@@ -1364,6 +1676,7 @@ function saveSalaryData(broadcast=true) {
     _blockSalaryStorageSync = true;
     localStorage.setItem(LUONG_KEY, JSON.stringify(data));
     setTimeout(()=>_blockSalaryStorageSync=false, 100);
+    cloudPushKey(LUONG_KEY);
     return true;
   } catch(err){ console.error(err); return false; }
 }
@@ -1463,6 +1776,7 @@ function calSaveData() {
     localStorage.setItem(CAL_KEY, JSON.stringify(calData));
     setTimeout(()=>_blockCalStorageSync=false,100);
     calFlashSaveInd();
+    cloudPushKey(CAL_KEY);
     // Luôn cập nhật snapshot tháng hiện tại
     calSnapshotMonth(calYear, calMonth);
   } catch(e){ console.error(e); }
@@ -1696,7 +2010,7 @@ function saveNote() {
   if(!calNotes[calEmp]) calNotes[calEmp]={};
   if(txt) calNotes[calEmp][nk]=txt;
   else delete calNotes[calEmp][nk];
-  try{ localStorage.setItem(CAL_KEY+'_notes',JSON.stringify(calNotes)); }catch(e){}
+  try{ localStorage.setItem(CAL_KEY+'_notes',JSON.stringify(calNotes)); cloudPushKey(CAL_KEY+'_notes'); }catch(e){}
   closeNoteModal();
   calRenderCalendar();
   showToast(txt?'📝 Đã lưu ghi chú':'🗑 Đã xóa ghi chú');
@@ -1706,7 +2020,7 @@ function deleteNote() {
   if(_noteDay===null) return;
   const nk='note_'+calDateKey(_noteYear,_noteMonth,_noteDay);
   if(calNotes[calEmp]) delete calNotes[calEmp][nk];
-  try{ localStorage.setItem(CAL_KEY+'_notes',JSON.stringify(calNotes)); }catch(e){}
+  try{ localStorage.setItem(CAL_KEY+'_notes',JSON.stringify(calNotes)); cloudPushKey(CAL_KEY+'_notes'); }catch(e){}
   closeNoteModal();
   calRenderCalendar();
   showToast('🗑 Đã xóa ghi chú');
@@ -1739,6 +2053,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if($('noteModal').style.display!=='none'){closeNoteModal();return;}
     if($('prevMonthModal').style.display!=='none'){closePrevMonthModal();return;}
+    if($('cloudModal').style.display!=='none'){closeCloudModal();return;}
   }
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
   if(activeMode!==0) return;
@@ -1814,6 +2129,7 @@ function calSnapshotMonth(y, m) {
     existing.sort((a,b)=>b.key.localeCompare(a.key));
     while(existing.length>12) existing.pop();
     localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(existing));
+    cloudPushKey(SNAPSHOT_KEY);
   } catch(e){ console.error('Snapshot error',e); }
 }
 
@@ -1963,6 +2279,16 @@ const hadSaved = loadSalaryData();
     recalc(e);
   });
 })();
+
+// ── Khởi động đồng bộ đám mây tự động (nếu Firebase đã cấu hình) ──
+function _startCloudAutoSync() {
+  if (cloudReady()) {
+    cloudUserId = getOrCreateUserId();
+    cloudInit();
+  }
+}
+if (window._fb) { _startCloudAutoSync(); }
+window.addEventListener('firebase-ready', _startCloudAutoSync);
 </script>
 </body>
 </html>
