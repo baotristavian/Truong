@@ -78,6 +78,21 @@ window.dispatchEvent(new CustomEvent('firebase-ready'));
   --green-border:#1e3d26;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+/* ─── EMPLOYEE GATE (màn hình chọn nhân viên) ──────────────────── */
+#empGate{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:24px;text-align:center;}
+#empGate.hidden{display:none;}
+#empGate .gate-title{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+#empGate .gate-sub{font-size:13px;color:var(--text2);margin-top:6px;}
+#empGate .gate-options{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
+#empGate .gate-card{width:170px;padding:28px 18px;border-radius:16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:'Lexend',sans-serif;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;}
+#empGate .gate-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.4);}
+#empGate .gate-card .gate-icon{font-size:34px;}
+#empGate .gate-card .gate-name{font-size:15px;font-weight:700;}
+#empGate .gate-card.e0:hover{border-color:var(--e0);box-shadow:0 0 16px rgba(88,166,255,.25);}
+#empGate .gate-card.e1:hover{border-color:var(--e1);box-shadow:0 0 16px rgba(188,140,255,.25);}
+.gate-switch-btn{position:fixed;bottom:14px;right:14px;z-index:50;}
+body.gate-locked .mode-btn.hidden-by-gate,
+body.gate-locked .cal-emp-tab.hidden-by-gate{display:none!important;}
 button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 body{font-family:'Lexend',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px;}
 
@@ -254,7 +269,12 @@ svg.donut{transform:rotate(-90deg);}
 
 /* ─── FOOTER ─────────────────────────────────────────────────── */
 .footer{margin-top:28px;padding:13px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text2);}
-.fv{display:flex;gap:20px;font-family:'JetBrains Mono',monospace;}
+.fv{display:flex;gap:24px;font-family:'JetBrains Mono',monospace;flex-wrap:wrap;}
+.fv-group{display:flex;flex-direction:column;gap:2px;}
+.fv-emp{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;font-family:'Lexend',sans-serif;}
+.fv-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text2);}
+.fv-row strong{color:var(--text);}
+.fv-row.fv-net strong{font-size:13px;}
 
 /* ─── TOAST ──────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--green-bg);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 4px 20px rgba(63,185,80,.2);pointer-events:none;}
@@ -556,8 +576,9 @@ svg.donut{transform:rotate(-90deg);}
   .itab{white-space:nowrap;padding:9px 13px;font-size:11px;flex:0 0 auto;}
 
   /* ── Footer ── */
-  .footer{flex-direction:row;flex-wrap:wrap;gap:6px;padding:10px 12px;font-size:11px;border-radius:8px;}
-  .fv{gap:12px;}
+  .footer{flex-direction:column;gap:10px;padding:12px 14px;font-size:11px;border-radius:8px;align-items:stretch;}
+  .fv{gap:14px;flex-wrap:wrap;}
+  .fv-group{flex:1;min-width:140px;}
 
   /* ── Toast ── */
   .toast{bottom:80px;right:8px;left:8px;font-size:12px;padding:10px 14px;border-radius:9px;}
@@ -758,6 +779,27 @@ svg.donut{transform:rotate(-90deg);}
 </style>
 </head>
 <body>
+
+<!-- ── EMPLOYEE GATE: màn hình chọn nhân viên trước khi vào hệ thống ── -->
+<div id="empGate">
+  <div>
+    <div class="gate-title">🏭 Hệ Thống Tính Lương</div>
+    <div class="gate-sub">Chọn nhân viên để tiếp tục</div>
+  </div>
+  <div class="gate-options">
+    <button class="gate-card e0" onclick="empGateChoose(0)">
+      <div class="gate-icon">🛠️</div>
+      <div class="gate-name">Bảo Trì</div>
+    </button>
+    <button class="gate-card e1" onclick="empGateChoose(1)">
+      <div class="gate-icon">🕸️</div>
+      <div class="gate-name">Đan Lưới</div>
+    </button>
+  </div>
+</div>
+
+<!-- Nút đổi nhân viên (hiện sau khi đã chọn) -->
+<button class="btn btn-ghost gate-switch-btn" id="gateSwitchBtn" onclick="empGateReset()" style="display:none;">🔄 Đổi nhân viên</button>
 
 <div style="max-width:900px;margin:0 auto;">
 
@@ -1110,8 +1152,18 @@ svg.donut{transform:rotate(-90deg);}
 <div class="footer">
   <span id="footerTxt">Hệ thống tính lương</span>
   <div class="fv">
-    <span style="color:var(--e0);">Bảo Trì: <strong id="f_tn0">0đ</strong></span>
-    <span style="color:var(--e1);">Đan Lưới: <strong id="f_tn1">0đ</strong></span>
+    <div class="fv-group" id="fvGroup0">
+      <div class="fv-emp" style="color:var(--e0);">Bảo Trì</div>
+      <div class="fv-row"><span>Lương gộp:</span><strong id="f_gop0">0đ</strong></div>
+      <div class="fv-row fv-net"><span>Lương thực nhận:</span><strong style="color:var(--e0);" id="f_tn0">0đ</strong></div>
+      <div class="fv-row"><span>Khấu trừ:</span><strong id="f_kt0">0đ</strong></div>
+    </div>
+    <div class="fv-group" id="fvGroup1">
+      <div class="fv-emp" style="color:var(--e1);">Đan Lưới</div>
+      <div class="fv-row"><span>Lương gộp:</span><strong id="f_gop1">0đ</strong></div>
+      <div class="fv-row fv-net"><span>Lương thực nhận:</span><strong style="color:var(--e1);" id="f_tn1">0đ</strong></div>
+      <div class="fv-row"><span>Khấu trừ:</span><strong id="f_kt1">0đ</strong></div>
+    </div>
   </div>
 </div>
 </div><!-- /container -->
@@ -1927,8 +1979,12 @@ function updateSim(e) {
 
 function updateFooter() {
   const c0=getCalc(0), c1=getCalc(1);
+  $('f_gop0').textContent=FMT(c0.tong);
   $('f_tn0').textContent=FMT(c0.tn);
+  $('f_kt0').textContent=FMT(c0.kt);
+  $('f_gop1').textContent=FMT(c1.tong);
   $('f_tn1').textContent=FMT(c1.tn);
+  $('f_kt1').textContent=FMT(c1.kt);
 }
 
 // ── NAV ───────────────────────────────────────────────────────────
@@ -2051,6 +2107,7 @@ let calDragType=null;
 let calData={0:{},1:{}};
 let calNotes={0:{},1:{}};  // notes keyed by 'note_YYYY-MM-DD'
 let _blockCalStorageSync=false;
+let calDataLoaded=false; // flag: dữ liệu lịch ca đã sẵn sàng (dùng cho reminder)
 
 function calLoadData() {
   try {
@@ -2065,6 +2122,7 @@ function calLoadData() {
     if(!calNotes[0]) calNotes[0]={};
     if(!calNotes[1]) calNotes[1]={};
   } catch(e){ calNotes={0:{},1:{}}; }
+  calDataLoaded=true;
 }
 
 function calSaveData() {
@@ -2596,7 +2654,120 @@ const hadSaved = loadSalaryData();
   });
 })();
 
-// ── Khởi động Auth listener (thay thế _startCloudAutoSync cũ) ───
+// ════════════════════════════════════════════════════════════════
+// EMPLOYEE GATE — chọn nhân viên trước khi vào hệ thống
+// Khi chọn "Bảo Trì" (0) hoặc "Đan Lưới" (1):
+//  - Ẩn mode/tab của nhân viên còn lại
+//  - Tự động chuyển sang giao diện của nhân viên đã chọn
+//  - Khóa tab nhân viên trong Lịch Ca về đúng người đã chọn
+// ════════════════════════════════════════════════════════════════
+const EMP_GATE_KEY = 'salaryApp_selectedEmp';
+
+function empGateApply(idx) {
+  document.body.classList.add('gate-locked');
+  const otherIdx = idx === 0 ? 1 : 0;
+
+  // Ẩn nút mode của nhân viên còn lại (modeBtn1 = Bảo Trì(0), modeBtn2 = Đan Lưới(1))
+  const otherModeBtn = $('modeBtn' + (otherIdx + 1));
+  if (otherModeBtn) otherModeBtn.classList.add('hidden-by-gate');
+
+  // Ẩn footer của nhân viên còn lại
+  const otherFvGroup = $('fvGroup' + otherIdx);
+  if (otherFvGroup) otherFvGroup.style.display = 'none';
+
+  // Ẩn tab nhân viên còn lại trong Lịch Ca
+  const otherCalTab = $('calTab' + otherIdx);
+  if (otherCalTab) otherCalTab.classList.add('hidden-by-gate');
+
+  // Khóa Lịch Ca về đúng nhân viên đã chọn
+  if (typeof calSwitchEmp === 'function') calSwitchEmp(idx);
+
+  // Tự động mở thẳng công cụ của nhân viên đã chọn
+  const myModeBtn = $('modeBtn' + (idx + 1));
+  if (myModeBtn) switchMode(idx + 1, myModeBtn);
+
+  // Hiện nút đổi nhân viên
+  const sw = $('gateSwitchBtn');
+  if (sw) sw.style.display = '';
+}
+
+function empGateChoose(idx) {
+  localStorage.setItem(EMP_GATE_KEY, String(idx));
+  $('empGate').classList.add('hidden');
+  empGateApply(idx);
+}
+
+function empGateReset() {
+  localStorage.removeItem(EMP_GATE_KEY);
+  location.reload();
+}
+
+(function empGateInit() {
+  const saved = localStorage.getItem(EMP_GATE_KEY);
+  if (saved === '0' || saved === '1') {
+    $('empGate').classList.add('hidden');
+    empGateApply(Number(saved));
+  }
+})();
+
+// ════════════════════════════════════════════════════════════════
+// ATTENDANCE REMINDER — thông báo trình duyệt nếu 24h chưa tích lịch ca
+// Quy tắc: nếu cả "hôm nay" và "hôm qua" đều chưa được đánh dấu ca
+// (calData[emp][dateKey] trống) → coi như đã quá 24h chưa tích → nhắc.
+// Key lưu riêng theo từng nhân viên để tránh một người nhận thông báo
+// làm mất nhắc của người còn lại trong cùng ngày.
+// ════════════════════════════════════════════════════════════════
+function attNotifKey(idx) { return `salaryApp_lastAttNotif_${idx}`; }
+
+function attEmpName(idx){ return idx===0 ? 'Bảo Trì' : 'Đan Lưới'; }
+
+function attCheckMissing(empIdx) {
+  const now = new Date();
+  const todayKey = calDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+  const y = new Date(now); y.setDate(y.getDate()-1);
+  const yKey = calDateKey(y.getFullYear(), y.getMonth(), y.getDate());
+  const data = (calData[empIdx]) || {};
+  return !data[todayKey] && !data[yKey];
+}
+
+function attMaybeNotify(empIdx) {
+  // Chờ calData load xong (localStorage hoặc Firebase) trước khi kiểm tra
+  if (!calDataLoaded) return;
+  if (!attCheckMissing(empIdx)) return;
+
+  const todayStr = new Date().toDateString();
+  if (localStorage.getItem(attNotifKey(empIdx)) === todayStr) return;
+
+  const title = '⏰ Nhắc tích lịch ca';
+  const body  = `${attEmpName(empIdx)} ơi, bạn chưa tích lịch ca trong 24h qua. Vào lịch để cập nhật nhé!`;
+
+  // Chỉ xin quyền khi thực sự cần nhắc (không pop-up ngay lúc mở trang)
+  if ('Notification' in window) {
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body });
+      localStorage.setItem(attNotifKey(empIdx), todayStr);
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(perm => {
+        if (perm === 'granted') {
+          new Notification(title, { body });
+          localStorage.setItem(attNotifKey(empIdx), todayStr);
+        }
+      });
+    }
+  }
+  if (typeof showToast === 'function') showToast(body, 'amber');
+}
+
+function attRunCheck() {
+  if (!calDataLoaded) return; // dữ liệu chưa sẵn sàng → bỏ qua lần này
+  const saved = localStorage.getItem(EMP_GATE_KEY);
+  if (saved === '0' || saved === '1') attMaybeNotify(Number(saved));
+  else [0,1].forEach(attMaybeNotify);
+}
+
+setTimeout(attRunCheck, 3000);
+setInterval(attRunCheck, 60*60*1000);
+
 function _startCloudAutoSync() {
   authListen(); // Auth sẽ tự gọi cloudInit() sau khi đăng nhập thành công
 }
