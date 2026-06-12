@@ -1567,7 +1567,6 @@ const USER_ID_KEY = 'demca_userid_v1';
 const ALL_SYNC_KEYS = () => [LUONG_KEY, CAL_KEY, CAL_KEY+'_notes', SNAPSHOT_KEY];
 
 let cloudUserId = null;
-let _cloudPushTimer = null;
 let _cloudApplyingRemote = false;
 
 function getUserId() { return _authUser ? _authUser.uid : null; }
@@ -1579,17 +1578,19 @@ function cloudReady() {
 function cloudInit() {
   if (!cloudReady()) return;
   cloudAttachListeners();
-  // Lần đầu login: cloud có data → kéo về; chưa có → đẩy local lên
+  // Sau khi đăng nhập: so sánh local vs cloud, lấy bên nào có data hơn
   setTimeout(() => {
     const key0 = ALL_SYNC_KEYS()[0];
     const r0 = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key0}`);
     window._fb.get(r0).then(snap => {
-      if (snap.val() !== null && snap.val() !== undefined) {
-        if (!localStorage.getItem(key0)) {
-          cloudPullAll(() => showToast('☁️ Đã tải dữ liệu từ tài khoản của bạn', 'sync'));
-        }
+      const cloudHasData = snap.val() !== null && snap.val() !== undefined;
+      const localHasData = !!localStorage.getItem(key0);
+      if (cloudHasData && !localHasData) {
+        // Cloud có, local không có → kéo về
+        cloudPullAll(() => showToast('☁️ Đã tải dữ liệu từ tài khoản của bạn', 'sync'));
       } else {
-        cloudPushAll();
+        // Local có data (dù cloud có hay không) → luôn đẩy local lên cloud
+        cloudPushAll(() => showToast('☁️ Đã đồng bộ lên đám mây', 'sync'));
       }
     }).catch(console.error);
   }, 1000);
@@ -1620,10 +1621,11 @@ function cloudAttachListeners() {
   });
 }
 
+const _cloudPushTimers = {};
 function cloudPushKey(key) {
   if (!cloudReady() || _cloudApplyingRemote) return;
-  clearTimeout(_cloudPushTimer);
-  _cloudPushTimer = setTimeout(() => {
+  clearTimeout(_cloudPushTimers[key]);
+  _cloudPushTimers[key] = setTimeout(() => {
     const local = localStorage.getItem(key);
     if (local === null) return;
     const r = window._fb.ref(window._fb.db, `users/${cloudUserId}/${key}`);
