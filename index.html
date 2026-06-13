@@ -1,382 +1,297 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stavian MP — Đang chuyển trang</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Stavian MP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05070f;
+  --s1:#0a0d1a;
+  --s2:#0f1220;
+  --s3:#151a2e;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.1);
+  --accent:#4a7fff;
+  --accent2:#8b5cf6;
+  --text1:#eef0f8;
+  --text2:#7b82a0;
+  --text3:#3a3f5c;
+}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-    :root {
-      --bg: #080b14;
-      --surface: #0e1220;
-      --surface2: #141828;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.12);
-      --accent: #4f8ef7;
-      --accent2: #7c5cbf;
-      --text1: #f0f2fa;
-      --text2: #8b91ab;
-      --text3: #4e5472;
-    }
+.page{
+  position:relative;z-index:1;
+  width:100%;max-width:520px;
+  padding:0 24px;
+  animation:rise .8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+.logo-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:52px;
+}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-icon svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logo-name{font-size:15px;font-weight:600;color:var(--text1);letter-spacing:-.2px}
 
-    canvas#bg {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:20px;
+}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 1.6s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 440px;
-      padding: 0 20px;
-      animation: up .7s cubic-bezier(.16,1,.3,1) both;
-    }
+h1{
+  font-size:40px;font-weight:600;
+  color:var(--text1);
+  line-height:1.15;letter-spacing:-.8px;
+  margin-bottom:14px;
+}
+h1 em{
+  font-style:normal;
+  background:linear-gradient(100deg,#4a7fff 0%,#a78bfa 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
 
-    @keyframes up {
-      from { opacity:0; transform:translateY(32px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
+.sub{
+  font-size:15px;font-weight:300;
+  color:var(--text2);line-height:1.7;
+  max-width:380px;margin-bottom:44px;
+}
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(79,142,247,0.1);
-      border: 1px solid rgba(79,142,247,0.2);
-      border-radius: 99px;
-      padding: 5px 14px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--accent);
-      letter-spacing: .3px;
-      margin-bottom: 28px;
-    }
+.url-card{
+  display:flex;align-items:center;gap:14px;
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  padding:14px 18px;
+  margin-bottom:36px;
+  text-decoration:none;
+  transition:background .2s,border-color .2s;
+}
+.url-card:hover{background:var(--s3);border-color:rgba(74,127,255,.3)}
 
-    .badge-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: blink 1.4s ease infinite;
-    }
+.url-favicon{
+  width:38px;height:38px;border-radius:9px;flex-shrink:0;
+  background:rgba(74,127,255,.1);
+  border:1px solid rgba(74,127,255,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.url-favicon svg{width:17px;height:17px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-    @keyframes blink {
-      0%,100% { opacity:1; } 50% { opacity:.3; }
-    }
+.url-body{flex:1;min-width:0}
+.url-tag{font-size:10px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.url-host{font-size:14px;font-weight:500;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.url-host span{color:var(--accent)}
 
-    h1 {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--text1);
-      line-height: 1.2;
-      letter-spacing: -0.6px;
-      margin-bottom: 12px;
-    }
+.url-chevron{color:var(--text3);font-size:20px;line-height:1;flex-shrink:0}
 
-    h1 span {
-      background: linear-gradient(90deg, #4f8ef7, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+.progress-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.progress-info{font-size:12px;color:var(--text3)}
+.progress-pct{font-size:12px;font-weight:500;color:var(--text2);font-variant-numeric:tabular-nums}
 
-    .desc {
-      font-size: 15px;
-      color: var(--text2);
-      line-height: 1.65;
-      margin-bottom: 36px;
-    }
+.track{height:2px;background:var(--s3);border-radius:99px;overflow:hidden;margin-bottom:32px}
+.fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s ease}
 
-    .url-pill {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 32px;
-      text-decoration: none;
-      transition: border-color .2s;
-    }
-    .url-pill:hover { border-color: rgba(79,142,247,.4); }
+.actions{display:flex;align-items:center;justify-content:space-between;gap:16px}
 
-    .url-icon {
-      width: 32px; height: 32px;
-      border-radius: 8px;
-      background: rgba(79,142,247,0.12);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
+.timer{font-size:13px;color:var(--text3)}
+.timer strong{font-weight:500;color:var(--text2);font-variant-numeric:tabular-nums}
 
-    .url-icon svg { width:16px; height:16px; stroke: var(--accent); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);
+  color:#fff;font-family:inherit;font-size:13px;font-weight:500;
+  padding:9px 20px;border-radius:9px;border:none;cursor:pointer;
+  text-decoration:none;letter-spacing:-.1px;
+  transition:opacity .15s,transform .15s;
+}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
-    .url-text { flex: 1; }
-    .url-label { font-size: 11px; color: var(--text3); letter-spacing:.3px; margin-bottom:2px; }
-    .url-value { font-size: 14px; font-weight: 500; color: var(--accent); }
+.sep{height:1px;background:var(--border);margin:36px 0}
 
-    .url-arrow { color: var(--text3); font-size: 18px; }
+.steps{display:flex;flex-direction:column;gap:0}
 
-    .progress-section { margin-bottom: 28px; }
+.step{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.step:last-child{border-bottom:none}
 
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+.step-icon{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:var(--s2);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+}
+.step-icon svg{width:14px;height:14px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text3)}
+.step-icon.ok{background:rgba(74,127,255,.1);border-color:rgba(74,127,255,.2)}
+.step-icon.ok svg{stroke:var(--accent)}
+.step-icon.active{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.2);animation:breathe 1.8s ease infinite}
+.step-icon.active svg{stroke:var(--accent2)}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.5}}
 
-    .progress-label { font-size: 13px; color: var(--text3); }
-    .progress-pct   { font-size: 13px; font-weight: 600; color: var(--text2); font-variant-numeric: tabular-nums; }
-
-    .track {
-      height: 3px;
-      background: var(--surface2);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 99px;
-      background: linear-gradient(90deg, #4f8ef7, #a78bfa);
-      transition: width .3s ease;
-    }
-
-    .footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .countdown {
-      font-size: 13px;
-      color: var(--text3);
-    }
-    .countdown strong { color: var(--text2); font-weight: 500; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #fff;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: opacity .2s, transform .15s;
-      white-space: nowrap;
-    }
-    .btn:hover { opacity: .88; transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); opacity: 1; }
-    .btn svg { width:15px; height:15px; fill:none; stroke:#fff; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
-
-    .divider {
-      width: 1px; height: 40px;
-      background: var(--border);
-      margin: 32px auto;
-    }
-
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .step-num {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--surface2);
-      border: 1px solid var(--border2);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text3);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .step-num.done {
-      background: rgba(79,142,247,.12);
-      border-color: rgba(79,142,247,.3);
-      color: var(--accent);
-    }
-
-    .step-content { flex: 1; }
-    .step-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 2px; }
-    .step-desc  { font-size: 12px; color: var(--text3); }
-  </style>
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:2px}
+.step-desc{font-size:12px;color:var(--text3);line-height:1.5}
+</style>
 </head>
 <body>
+<canvas id="c"></canvas>
 
-<canvas id="bg"></canvas>
+<div class="page">
 
-<div class="wrap">
-  <div class="badge">
-    <div class="badge-dot"></div>
-    Đang chuyển hướng
+  <div class="logo-row">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logo-name">Stavian MP</span>
   </div>
 
-  <h1>Website đã<br>có địa chỉ <span>mới</span></h1>
-  <p class="desc">Stavian MP vừa được chuyển sang nền tảng Firebase Hosting. Bạn sẽ tự động được dẫn đến trang mới.</p>
+  <div class="eyebrow"><div class="dot"></div>Chuyển hướng tự động</div>
 
-  <a class="url-pill" href="https://stavianmp.web.app">
-    <div class="url-icon">
-      <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+  <h1>Chúng tôi đã<br>chuyển sang <em>địa chỉ mới</em></h1>
+
+  <p class="sub">Trang web đã được nâng cấp lên nền tảng mới. Bạn sẽ được chuyển tự động trong giây lát.</p>
+
+  <a class="url-card" href="https://stavianmp.web.app" id="link">
+    <div class="url-favicon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
     </div>
-    <div class="url-text">
-      <div class="url-label">ĐỊA CHỈ MỚI</div>
-      <div class="url-value">stavianmp.web.app</div>
+    <div class="url-body">
+      <div class="url-tag">Địa chỉ mới</div>
+      <div class="url-host"><span>stavianmp</span>.web.app</div>
     </div>
-    <div class="url-arrow">›</div>
+    <div class="url-chevron">›</div>
   </a>
 
-  <div class="progress-section">
-    <div class="progress-meta">
-      <span class="progress-label">Đang chuẩn bị</span>
-      <span class="progress-pct" id="pct">0%</span>
-    </div>
-    <div class="track"><div class="fill" id="fill"></div></div>
+  <div class="progress-row">
+    <span class="progress-info" id="info">Đang kết nối...</span>
+    <span class="progress-pct" id="pct">0%</span>
   </div>
+  <div class="track"><div class="fill" id="fill"></div></div>
 
-  <div class="footer">
-    <div class="countdown">Tự động chuyển sau <strong id="sec">5</strong>s</div>
+  <div class="actions">
+    <div class="timer">Chuyển sau <strong id="sec">5</strong> giây</div>
     <a class="btn" href="https://stavianmp.web.app">
       Đến ngay
       <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
   </div>
 
-  <div class="divider"></div>
+  <div class="sep"></div>
 
   <div class="steps">
     <div class="step">
-      <div class="step-num done" id="s1">✓</div>
-      <div class="step-content">
-        <div class="step-title">Bảo mật được cải thiện</div>
-        <div class="step-desc">API key đã được tách ra khỏi source code</div>
+      <div class="step-icon ok">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num done" id="s2">✓</div>
-      <div class="step-content">
+      <div class="step-body">
         <div class="step-title">Nền tảng mới</div>
-        <div class="step-desc">Firebase Hosting — tốc độ cao, CDN toàn cầu</div>
+        <div class="step-desc">Firebase Hosting — CDN toàn cầu, tốc độ cao</div>
       </div>
     </div>
     <div class="step">
-      <div class="step-num" id="s3">3</div>
-      <div class="step-content">
-        <div class="step-title">Chuyển hướng</div>
-        <div class="step-desc">Đang dẫn bạn đến địa chỉ mới...</div>
+      <div class="step-icon active" id="s2icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-title">Đang chuyển hướng</div>
+        <div class="step-desc">Dẫn bạn đến <span style="color:var(--text2)">stavianmp.web.app</span></div>
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
-const TARGET = 'https://stavianmp.web.app';
-const TOTAL  = 5000;
+const TARGET='https://stavianmp.web.app';
+const TOTAL=5000;
+const labels=['Đang kết nối...','Đang chuẩn bị...','Sắp hoàn tất...','Đang chuyển hướng...'];
 
-(function initCanvas() {
-  const c   = document.getElementById('bg');
-  const ctx = c.getContext('2d');
-  let W, H, pts;
-
-  function resize() {
-    W = c.width  = window.innerWidth;
-    H = c.height = window.innerHeight;
-    pts = Array.from({length:70}, () => ({
-      x: Math.random()*W, y: Math.random()*H,
-      vx: (Math.random()-.5)*.18, vy: (Math.random()-.5)*.18,
-      r: Math.random()*1.4+.4
+(function(){
+  const c=document.getElementById('c');
+  const ctx=c.getContext('2d');
+  let W,H,pts;
+  function resize(){
+    W=c.width=window.innerWidth;
+    H=c.height=window.innerHeight;
+    pts=Array.from({length:55},()=>({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,
+      r:Math.random()*1.2+.3
     }));
   }
-
-  function draw() {
+  function draw(){
     ctx.clearRect(0,0,W,H);
-    pts.forEach(p => {
-      p.x = (p.x+p.vx+W)%W;
-      p.y = (p.y+p.vy+H)%H;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle = 'rgba(255,255,255,.45)';
-      ctx.fill();
+    pts.forEach(p=>{
+      p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy+H)%H;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,.35)';ctx.fill();
     });
-    pts.forEach((a,i) => pts.slice(i+1).forEach(b => {
-      const d = Math.hypot(a.x-b.x,a.y-b.y);
-      if (d < 110) {
-        ctx.beginPath();
-        ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
-        ctx.strokeStyle = `rgba(79,142,247,${(1-d/110)*.08})`;
-        ctx.lineWidth = .5;
-        ctx.stroke();
+    pts.forEach((a,i)=>pts.slice(i+1).forEach(b=>{
+      const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<100){
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(74,127,255,${(1-d/100)*.06})`;
+        ctx.lineWidth=.5;ctx.stroke();
       }
     }));
     requestAnimationFrame(draw);
   }
-
-  window.addEventListener('resize', resize);
-  resize(); draw();
+  window.addEventListener('resize',resize);
+  resize();draw();
 })();
 
-const fillEl = document.getElementById('fill');
-const pctEl  = document.getElementById('pct');
-const secEl  = document.getElementById('sec');
-const s3     = document.getElementById('s3');
-let start = null;
+const fillEl=document.getElementById('fill');
+const pctEl=document.getElementById('pct');
+const secEl=document.getElementById('sec');
+const infoEl=document.getElementById('info');
+const s2=document.getElementById('s2icon');
+let start=null;
 
-function tick(ts) {
-  if (!start) start = ts;
-  const elapsed  = Math.min(ts - start, TOTAL);
-  const progress = elapsed / TOTAL;
-  const pctVal   = Math.round(progress * 100);
-  const secsLeft = Math.ceil((TOTAL - elapsed) / 1000);
-
-  fillEl.style.width = pctVal + '%';
-  pctEl.textContent  = pctVal + '%';
-  secEl.textContent  = secsLeft;
-
-  if (pctVal >= 60) {
-    s3.classList.add('done');
-    s3.textContent = '✓';
-  }
-
-  if (elapsed < TOTAL) {
-    requestAnimationFrame(tick);
+function tick(ts){
+  if(!start)start=ts;
+  const elapsed=Math.min(ts-start,TOTAL);
+  const p=elapsed/TOTAL;
+  const v=Math.round(p*100);
+  const s=Math.ceil((TOTAL-elapsed)/1000);
+  fillEl.style.width=v+'%';
+  pctEl.textContent=v+'%';
+  secEl.textContent=s;
+  infoEl.textContent=labels[Math.min(Math.floor(p*labels.length),labels.length-1)];
+  if(v>=100){
+    s2.classList.remove('active');s2.classList.add('ok');
+    s2.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:var(--accent)"><path d="M20 6L9 17l-5-5"/></svg>';
+    window.location.href=TARGET;
   } else {
-    window.location.href = TARGET;
+    requestAnimationFrame(tick);
   }
 }
-
 requestAnimationFrame(tick);
 </script>
 </body>
